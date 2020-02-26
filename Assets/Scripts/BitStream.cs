@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Assertions;
 /**
     Bit Stream Reader and Writer, data are bit-aligned, all Big-endian
 **/
@@ -12,28 +13,48 @@ public class BitStreamReader {
         _data = data;
     }
 
-    // int32
     public int readInt32() {
-        // int num = 0;
-        // for (int i = 0; i < 4; i++) {
-        //     num |= readBits(_data[getHeadInBytes()], 8);
-        //     _data[getHeadInBytes()]
-        //     writeBits((byte)(val >> (3-i)*8), 8);
-        //     _head += 8;
-        // }
-        return 1;
+        int num = 0;
+        for (int i = 0; i < 4; i++) {
+            num |= readBits(8) << (3 - i) * 8;
+        }
+        return num;
+    }
+
+    public int readInt16() {
+        int num = 0;
+        for (int i = 0; i < 2; i++) {
+            num |= readBits(8) << (1 - i) * 8;
+        }
+        return num;
     }
 
     public bool readBool() {
-        return true;
+        return readBits(1) == 0 ? false : true;
     }
 
-    private byte readBits(byte data, int bitCount) {
-        return (byte) 1;
-    }
+    private byte readBits(int bitCount) {
+        Assert.IsTrue(bitCount <= 8 && bitCount > 0);
+        Assert.IsTrue((_head + bitCount + 7) >> 3 <= _data.Length);
 
-    public int getByteLength() {
-        return (_head + 7) >> 3;
+        byte b = 0x00;
+
+        // this byte
+        int i_this_byte = _head >> 3;
+        int readed_this_byte = _head & 7;
+        int left_this_byte = Math.Min(8 - readed_this_byte, bitCount);
+        int space_this_byte = 8 - left_this_byte - readed_this_byte;
+        // 0000(011)[1], readed = 1, left = 3, space=4
+        b |= (byte) (_data[i_this_byte] << space_this_byte >>(space_this_byte + readed_this_byte));
+
+        // next byte
+        int left_next_byte = bitCount - left_this_byte;
+        if (left_next_byte > 0) {
+            b |= (byte) ((_data[i_this_byte + 1] & ~(0xff << left_next_byte)) << left_this_byte);
+        }
+
+        _head += bitCount;
+        return b;
     }
 }
 
@@ -65,7 +86,7 @@ public class BitStreamWriter {
             writeBits(b, 8);
         }
     }
-    
+
     public void writeInt16(int val) {
         for (int i = 0; i < 2; i++) {
             byte b = (byte) (val >>(1 - i) * 8);
@@ -73,28 +94,31 @@ public class BitStreamWriter {
         }
     }
 
-    private void writeBits(byte data, int bit_count) {
+    private void writeBits(byte data, int bitCount) {
         /**
             e.g, from: 1, 0000010 11000011, 1
             to: 00000101 10000110 00000011
         **/
-        if (_head + bit_count > _capacity) {
+        Assert.IsTrue(bitCount <= 8 && bitCount > 0);
+
+        if (_head + bitCount > _capacity) {
             Array.Resize<byte>(ref _data, _capacity * 2);
             _capacity *= 2;
         }
-        int curr_byte = _head >> 3;
+        int i_this_byte = _head >> 3;
         int used_this_byte = _head & 7;
-        int bit_left_this = Math.Min(8 - used_this_byte, bit_count);
+        int bit_left_this = Math.Min(8 - used_this_byte, bitCount);
         byte bit2write = (byte) ((data & ~(0xff << bit_left_this)) << used_this_byte);
-        _data[curr_byte] |= bit2write;
+        _data[i_this_byte] |= bit2write;
 
         // next byte
-        int bit_left_next = bit_count - bit_left_this;
+        int bit_left_next = bitCount - bit_left_this;
         if (bit_left_next > 0) {
-            bit2write = (byte) (data << (8 - bit_count) >>(8 - bit_count + bit_left_this));
-            _data[curr_byte + 1] = bit2write;
+            bit2write = (byte) (data << (8 - bitCount) >>(8 - bitCount + bit_left_this));
+            _data[i_this_byte + 1] = bit2write;
         }
-        _head += bit_count;
+
+        _head += bitCount;
     }
 
     public int getByteLength() {

@@ -32,7 +32,7 @@ public class BitStreamReader {
         return (byte) 1;
     }
 
-    public int getHeadInBytes() {
+    public int getByteLength() {
         return (_head + 7) >> 3;
     }
 }
@@ -65,6 +65,7 @@ public class BitStreamWriter {
             writeBits(b, 8);
         }
     }
+    
     public void writeInt16(int val) {
         for (int i = 0; i < 2; i++) {
             byte b = (byte) (val >>(1 - i) * 8);
@@ -73,14 +74,18 @@ public class BitStreamWriter {
     }
 
     private void writeBits(byte data, int bit_count) {
-        // TODO: resize _data)
-
-        byte bit2write;
+        /**
+            e.g, from: 1, 0000010 11000011, 1
+            to: 00000101 10000110 00000011
+        **/
+        if (_head + bit_count > _capacity) {
+            Array.Resize<byte>(ref _data, _capacity * 2);
+            _capacity *= 2;
+        }
         int curr_byte = _head >> 3;
         int used_this_byte = _head & 7;
-        int space_this_byte = 8 - used_this_byte;
-        int bit_left_this = Math.Min(space_this_byte, bit_count);
-        bit2write = (byte) ((data & ~(0xff << bit_left_this)) << used_this_byte);
+        int bit_left_this = Math.Min(8 - used_this_byte, bit_count);
+        byte bit2write = (byte) ((data & ~(0xff << bit_left_this)) << used_this_byte);
         _data[curr_byte] |= bit2write;
 
         // next byte

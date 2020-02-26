@@ -4,6 +4,9 @@ using UnityEngine.Assertions;
 /**
     Bit Stream Reader and Writer, data are bit-aligned, all Big-endian
 **/
+
+// TODO: compress int, quaternion
+
 public class BitStreamReader {
     private int _head;
     private byte[] _data;
@@ -13,12 +16,8 @@ public class BitStreamReader {
         _data = data;
     }
 
-    public int readInt32() {
-        int num = 0;
-        for (int i = 0; i < 4; i++) {
-            num |= readBits(8) << (3 - i) * 8;
-        }
-        return num;
+    public bool readBool() {
+        return (readBits(1) & 1) == 0 ? false : true;
     }
 
     public int readInt16() {
@@ -29,8 +28,32 @@ public class BitStreamReader {
         return num;
     }
 
-    public bool readBool() {
-        return readBits(1) == 0 ? false : true;
+    public int readInt32() {
+        int num = 0;
+        for (int i = 0; i < 4; i++) {
+            num |= readBits(8) << (3 - i) * 8;
+        }
+        return num;
+    }
+
+    public float readFloat() {
+        byte[] data = new byte[4];
+        for (int i = 0; i < 4; i++)
+            data[i] = readBits(8);
+        return (BitConverter.ToSingle(data, 0));
+    }
+
+    public Vector3 readVector3() {
+        return (new Vector3(readFloat(), readFloat(), readFloat()));
+    }
+
+    public Quaternion readQuaternionRot() {
+        Quaternion q = new Quaternion();
+        q.x = readFloat();
+        q.y = readFloat();
+        q.z = readFloat();
+        q.w = (float) Math.Sqrt(1f - q.x*q.x - q.y*q.y -q.z*q.z);
+        return q;
     }
 
     private byte readBits(int bitCount) {
@@ -80,6 +103,15 @@ public class BitStreamWriter {
         writeBits(val ? (byte) 1 : (byte) 0, 1);
     }
 
+    public void writeInt16(int val) {
+        Assert.IsTrue((val & 0xffff) == val);
+
+        for (int i = 0; i < 2; i++) {
+            byte b = (byte) (val >>(1 - i) * 8);
+            writeBits(b, 8);
+        }
+    }
+
     public void writeInt32(int val) {
         for (int i = 0; i < 4; i++) {
             byte b = (byte) (val >>(3 - i) * 8);
@@ -87,11 +119,29 @@ public class BitStreamWriter {
         }
     }
 
-    public void writeInt16(int val) {
-        for (int i = 0; i < 2; i++) {
-            byte b = (byte) (val >>(1 - i) * 8);
+    public void writeFloat(float val) {
+        byte[] data = BitConverter.GetBytes(val);
+        foreach (var b in data)
             writeBits(b, 8);
+    }
+
+    public void writeVector3(Vector3 vec3) {
+        writeFloat(vec3.x);
+        writeFloat(vec3.y);
+        writeFloat(vec3.z);
+    }
+
+    public void writeQuaternionRot(Quaternion q) {
+        // TODO: smallest-3. https://gafferongames.com/post/snapshot_compression/
+        Assert.IsTrue(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z - 1.0f < 0.0001f);
+        if (q.w < 0) {
+            q.x = -q.x;
+            q.y = -q.y;
+            q.z = -q.z;
         }
+        writeFloat(q.x);
+        writeFloat(q.y);
+        writeFloat(q.z);
     }
 
     private void writeBits(byte data, int bitCount) {

@@ -16,47 +16,47 @@ public class BitStreamReader {
         _data = data;
     }
 
-    public bool readBool() {
-        return (readBits(1) & 1) == 0 ? false : true;
+    public bool ReadBool() {
+        return (ReadBits(1) & 1) == 0 ? false : true;
     }
 
-    public int readInt16() {
+    public int ReadInt16() {
         int num = 0;
         for (int i = 0; i < 2; i++) {
-            num |= readBits(8) << (1 - i) * 8;
+            num |= ReadBits(8) << (1 - i) * 8;
         }
         return num;
     }
 
-    public int readInt32() {
+    public int ReadInt32() {
         int num = 0;
         for (int i = 0; i < 4; i++) {
-            num |= readBits(8) << (3 - i) * 8;
+            num |= ReadBits(8) << (3 - i) * 8;
         }
         return num;
     }
 
-    public float readFloat() {
+    public float ReadFloat() {
         byte[] data = new byte[4];
         for (int i = 0; i < 4; i++)
-            data[i] = readBits(8);
+            data[i] = ReadBits(8);
         return (BitConverter.ToSingle(data, 0));
     }
 
-    public Vector3 readVector3() {
-        return (new Vector3(readFloat(), readFloat(), readFloat()));
+    public Vector3 ReadVector3() {
+        return (new Vector3(ReadFloat(), ReadFloat(), ReadFloat()));
     }
 
-    public Quaternion readQuaternionRot() {
+    public Quaternion ReadQuaternionRot() {
         Quaternion q = new Quaternion();
-        q.x = readFloat();
-        q.y = readFloat();
-        q.z = readFloat();
+        q.x = ReadFloat();
+        q.y = ReadFloat();
+        q.z = ReadFloat();
         q.w = (float) Math.Sqrt(1f - q.x*q.x - q.y*q.y -q.z*q.z);
         return q;
     }
 
-    private byte readBits(int bitCount) {
+    private byte ReadBits(int bitCount) {
         Assert.IsTrue(bitCount <= 8 && bitCount > 0);
         Assert.IsTrue((_head + bitCount + 7) >> 3 <= _data.Length);
 
@@ -86,52 +86,58 @@ public class BitStreamWriter {
     private int _head;
     private byte[] _data;
 
+    public int LengthInBytes {
+        get{
+            return (_head+7)>>3;
+        }
+    }
+
     public BitStreamWriter(int capacity = 512 * 8) {
         _capacity = capacity;
         _head = 0;
         _data = new byte[capacity];
     }
 
-    public byte[] getData() {
-        int len = getByteLength();
+    public byte[] GetBytes() {
+        int len = LengthInBytes;
         byte[] b = new byte[len];
         Buffer.BlockCopy(_data, 0, b, 0, len);
         return b;
     }
 
-    public void writeBool(bool val) {
-        writeBits(val ? (byte) 1 : (byte) 0, 1);
+    public void WriteBool(bool val) {
+        WriteBits(val ? (byte) 1 : (byte) 0, 1);
     }
 
-    public void writeInt16(int val) {
+    public void WriteInt16(int val) {
         Assert.IsTrue((val & 0xffff) == val);
 
         for (int i = 0; i < 2; i++) {
             byte b = (byte) (val >>(1 - i) * 8);
-            writeBits(b, 8);
+            WriteBits(b, 8);
         }
     }
 
-    public void writeInt32(int val) {
+    public void WriteInt32(int val) {
         for (int i = 0; i < 4; i++) {
             byte b = (byte) (val >>(3 - i) * 8);
-            writeBits(b, 8);
+            WriteBits(b, 8);
         }
     }
 
-    public void writeFloat(float val) {
+    public void WriteFloat(float val) {
         byte[] data = BitConverter.GetBytes(val);
         foreach (var b in data)
-            writeBits(b, 8);
+            WriteBits(b, 8);
     }
 
-    public void writeVector3(Vector3 vec3) {
-        writeFloat(vec3.x);
-        writeFloat(vec3.y);
-        writeFloat(vec3.z);
+    public void WriteVector3(Vector3 vec3) {
+        WriteFloat(vec3.x);
+        WriteFloat(vec3.y);
+        WriteFloat(vec3.z);
     }
 
-    public void writeQuaternionRot(Quaternion q) {
+    public void WriteQuaternionRot(Quaternion q) {
         // TODO: smallest-3. https://gafferongames.com/post/snapshot_compression/
         Assert.IsTrue(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z - 1.0f < 0.0001f);
         if (q.w < 0) {
@@ -139,12 +145,12 @@ public class BitStreamWriter {
             q.y = -q.y;
             q.z = -q.z;
         }
-        writeFloat(q.x);
-        writeFloat(q.y);
-        writeFloat(q.z);
+        WriteFloat(q.x);
+        WriteFloat(q.y);
+        WriteFloat(q.z);
     }
 
-    private void writeBits(byte data, int bitCount) {
+    private void WriteBits(byte data, int bitCount) {
         /**
             e.g, from: 1, 0000010 11000011, 1
             to: 00000101 10000110 00000011
@@ -171,7 +177,4 @@ public class BitStreamWriter {
         _head += bitCount;
     }
 
-    public int getByteLength() {
-        return (_head + 7) >> 3;
-    }
 }

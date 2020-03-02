@@ -200,9 +200,10 @@ public class UDPSocket : IDisposable
                 {
                     if (!messageDictionary.ContainsKey(so.epFrom))
                     {
-                        Debug.Log("enter containskey for receive");
                         messageDictionary.Add(so.epFrom, new Queue<string> { });
                     }
+                    // Debug message to display the msg from client.
+                    Debug.Log("Message is: " + smessage);
                     messageDictionary[so.epFrom].Enqueue(smessage);
                     Debug.Log("Inner dic size is: " + messageDictionary.Count);
                 }
@@ -212,10 +213,5 @@ public class UDPSocket : IDisposable
         catch (Exception)
         {
         }
-    }
-
-    // rep exposure, but we do need to get the things in server's dictionary
-    public Dictionary<EndPoint, Queue<string>> getServerDictionary() {
-        return messageDictionary;
     }
 }

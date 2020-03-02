@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using System;
 using System.Net;
+using System.Threading;
 using System.Net.Sockets;
 using System.Text;
 
@@ -71,6 +72,9 @@ public class Test : MonoBehaviour
     }
 
     // Test the UDP code for both server and client
+    // it doesn't have assertions but it will test
+    // if the server can receive msgs from 2 clients at
+    // the same time.
     static void TestUDP()
     {
         Dictionary<EndPoint, Queue<string>> messageDictionary = new Dictionary<EndPoint, Queue<string>>();
@@ -79,27 +83,56 @@ public class Test : MonoBehaviour
         UDPSocket s = new UDPSocket(messageDictionary);
         s.Server("127.0.0.1", 37373);
 
-        // create a client and send to the server
-        Queue<string> cQ = new Queue<string>();
-        UDPSocket client = new UDPSocket(cQ);
-        client.Client("127.0.0.1", 37373);
-        client.cSend("Client send!");
-
         // Dictionary<EndPoint, Queue<string>> updatedDictionary = s.getServerDictionary();
 
-        Debug.Log(messageDictionary.Count);
-        foreach (KeyValuePair<EndPoint, Queue<string>> entry in messageDictionary)
-        {
-            // do something with entry.Value or entry.Key
-            Debug.Log(entry.Value);
-        }
-        
-
-
+        StartMultipleClient();
     }
 
-    void Update() {
+    // This method creates multiple clients that 
+    // uses multi-thread to send msg to server.
+    static void StartMultipleClient()
+    {
+        Thread t1 = new Thread(() =>
+        {
+            int numberOfSeconds = 0;
+            while (numberOfSeconds < 5)
+            {
+                // Thread.Sleep(1000);
 
+                numberOfSeconds++;
+                // create a client and send to the server
+                UDPSocket client = new UDPSocket(new Queue<string>());
+                client.Client("127.0.0.1", 37373);
+                client.cSend("Client222222 send!");
+
+            }
+            Debug.Log("I ran for 5 seconds");
+        });
+
+        Thread t2 = new Thread(() =>
+        {
+            int numberOfSeconds = 0;
+            while (numberOfSeconds < 4)
+            {
+                // Thread.Sleep(1000);
+
+                numberOfSeconds++;
+                // create a client and send to the server
+                UDPSocket client = new UDPSocket(new Queue<string>());
+                client.Client("127.0.0.1", 37373);
+                client.cSend("Client111111 send!");
+            }
+            Debug.Log("I ran for 4 seconds");
+
+        });
+
+        t1.Start();
+        t2.Start();
+
+        //wait for t1 to finish
+        t1.Join();
+        //wait for t2 to finish
+        t2.Join();
     }
 
     void Start()

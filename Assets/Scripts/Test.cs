@@ -1,13 +1,23 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
 
-public class Test : MonoBehaviour {
-    static bool isApprox(Quaternion q1, Quaternion q2) {
+using System.Collections.Generic;
+
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+public class Test : MonoBehaviour
+{
+    static bool isApprox(Quaternion q1, Quaternion q2)
+    {
         // 1 deg in 1 axis -> 0.0000004f
         return Mathf.Abs(Quaternion.Dot(q1, q2)) >= 1 - 0.0000004f;
     }
 
-    static void TestBitStream() {
+    static void TestBitStream()
+    {
         BitStreamWriter writer;
         BitStreamReader reader;
 
@@ -52,7 +62,7 @@ public class Test : MonoBehaviour {
         writer.WriteVector3(Vector3.one);
         writer.WriteVector3(vec);
         reader = new BitStreamReader(writer.GetBytes());
-        Assert.IsTrue(isApprox(reader.ReadQuaternionRot(),q));
+        Assert.IsTrue(isApprox(reader.ReadQuaternionRot(), q));
         Assert.IsFalse(reader.ReadBool());
         Assert.IsTrue(reader.ReadVector3() == Vector3.one);
         Assert.IsTrue(reader.ReadVector3() == vec);
@@ -60,7 +70,41 @@ public class Test : MonoBehaviour {
         Debug.Log("---Finish TestBitstream");
     }
 
-    void Start() {
+    // Test the UDP code for both server and client
+    static void TestUDP()
+    {
+        Dictionary<EndPoint, Queue<string>> messageDictionary = new Dictionary<EndPoint, Queue<string>>();
+
+        // create a server
+        UDPSocket s = new UDPSocket(messageDictionary);
+        s.Server("127.0.0.1", 37373);
+
+        // create a client and send to the server
+        Queue<string> cQ = new Queue<string>();
+        UDPSocket client = new UDPSocket(cQ);
+        client.Client("127.0.0.1", 37373);
+        client.cSend("Client send!");
+
+        // Dictionary<EndPoint, Queue<string>> updatedDictionary = s.getServerDictionary();
+
+        Debug.Log(messageDictionary.Count);
+        foreach (KeyValuePair<EndPoint, Queue<string>> entry in messageDictionary)
+        {
+            // do something with entry.Value or entry.Key
+            Debug.Log(entry.Value);
+        }
+        
+
+
+    }
+
+    void Update() {
+
+    }
+
+    void Start()
+    {
         TestBitStream();
+        TestUDP();
     }
 }

@@ -11,12 +11,17 @@ public class BitStreamReader {
     private int _head;
     private byte[] _data;
 
+    public BitStreamReader() {
+        _head = 0;
+        _data = null;
+    }
+
     public BitStreamReader(byte[] data) {
         _head = 0;
         _data = data;
     }
 
-    public BitStreamReader SetData(byte[] data) {
+    public BitStreamReader SetBytes(byte[] data) {
         _head = 0;
         _data = data;
         return this;
@@ -104,10 +109,18 @@ public class BitStreamWriter {
         _data = new byte[capacity];
     }
 
-    public byte[] GetBytes() {
+    public byte[] DumpBytes() {
         int len = LengthInBytes;
         byte[] b = new byte[len];
         Buffer.BlockCopy(_data, 0, b, 0, len);
+        // clean last byte
+        // int validBitsInLastByte = _head & 7;
+        // if (validBitsInLastByte != 0) {
+        //     b[len-1] = (byte) (b[len-1] & (~(0xff << validBitsInLastByte)));
+        // }
+
+        _head = 0;
+        Array.Clear(_data, 0, len);
         return b;
     }
 
@@ -169,7 +182,7 @@ public class BitStreamWriter {
         **/
         Assert.IsTrue(bitCount <= 8 && bitCount > 0);
 
-        if (_head + bitCount > _capacity) {
+        while (_head + bitCount > _capacity) {
             Array.Resize<byte>(ref _data, _capacity * 2);
             _capacity *= 2;
         }
@@ -177,6 +190,9 @@ public class BitStreamWriter {
         int used_this_byte = _head & 7;
         int bit_left_this = Math.Min(8 - used_this_byte, bitCount);
         byte bit2write = (byte) ((data & ~(0xff << bit_left_this)) << used_this_byte);
+
+        int bit_total_this = used_this_byte + bit_left_this;
+        // _data[i_this_byte] = (byte)((_data[i_this_byte] | bit2write) & (~(0xff << bit_total_this)));
         _data[i_this_byte] |= bit2write;
 
         // next byte

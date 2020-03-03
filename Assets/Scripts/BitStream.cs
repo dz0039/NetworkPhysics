@@ -1,12 +1,12 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Assertions;
+
 /**
     Bit Stream Reader and Writer, data are bit-aligned, all Big-endian
 **/
-
 // TODO: compress int, quaternion
-
+// TODO: remove tmp resources
 public class BitStreamReader {
     private int _head;
     private byte[] _data;
@@ -14,6 +14,12 @@ public class BitStreamReader {
     public BitStreamReader(byte[] data) {
         _head = 0;
         _data = data;
+    }
+
+    public BitStreamReader SetData(byte[] data) {
+        _head = 0;
+        _data = data;
+        return this;
     }
 
     public bool ReadBool() {
@@ -105,39 +111,44 @@ public class BitStreamWriter {
         return b;
     }
 
-    public void WriteBool(bool val) {
+    public BitStreamWriter WriteBool(bool val) {
         WriteBits(val ? (byte) 1 : (byte) 0, 1);
+        return this;
     }
 
-    public void WriteInt16(int val) {
+    public BitStreamWriter WriteInt16(int val) {
         Assert.IsTrue((val & 0xffff) == val);
 
         for (int i = 0; i < 2; i++) {
             byte b = (byte) (val >>(1 - i) * 8);
             WriteBits(b, 8);
         }
+        return this;
     }
 
-    public void WriteInt32(int val) {
+    public BitStreamWriter WriteInt32(int val) {
         for (int i = 0; i < 4; i++) {
             byte b = (byte) (val >>(3 - i) * 8);
             WriteBits(b, 8);
         }
+        return this;
     }
 
-    public void WriteFloat(float val) {
+    public BitStreamWriter WriteFloat(float val) {
         byte[] data = BitConverter.GetBytes(val);
         foreach (var b in data)
             WriteBits(b, 8);
+        return this;
     }
 
-    public void WriteVector3(Vector3 vec3) {
+    public BitStreamWriter WriteVector3(Vector3 vec3) {
         WriteFloat(vec3.x);
         WriteFloat(vec3.y);
         WriteFloat(vec3.z);
+        return this;
     }
 
-    public void WriteQuaternionRot(Quaternion q) {
+    public BitStreamWriter WriteQuaternionRot(Quaternion q) {
         // TODO: smallest-3. https://gafferongames.com/post/snapshot_compression/
         Assert.IsTrue(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z - 1.0f < 0.0001f);
         if (q.w < 0) {
@@ -148,6 +159,7 @@ public class BitStreamWriter {
         WriteFloat(q.x);
         WriteFloat(q.y);
         WriteFloat(q.z);
+        return this;
     }
 
     private void WriteBits(byte data, int bitCount) {

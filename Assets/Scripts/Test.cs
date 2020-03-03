@@ -1,24 +1,21 @@
-﻿using UnityEngine;
-using UnityEngine.Assertions;
-
+﻿using System;
 using System.Collections.Generic;
-
-using System;
 using System.Net;
 using System.Threading;
-using System.Net.Sockets;
-using System.Text;
+using UnityEngine;
+using UnityEngine.Assertions;
 
-public class Test : MonoBehaviour
-{
-    static bool isApprox(Quaternion q1, Quaternion q2)
-    {
+public class Test : MonoBehaviour {
+#region  Helper
+    static bool IsApprox(Quaternion q1, Quaternion q2) {
         // 1 deg in 1 axis -> 0.0000004f
         return Mathf.Abs(Quaternion.Dot(q1, q2)) >= 1 - 0.0000004f;
     }
 
-    static void TestBitStream()
-    {
+#endregion
+
+
+    static void TestBitStream() {
         BitStreamWriter writer;
         BitStreamReader reader;
 
@@ -63,81 +60,62 @@ public class Test : MonoBehaviour
         writer.WriteVector3(Vector3.one);
         writer.WriteVector3(vec);
         reader = new BitStreamReader(writer.GetBytes());
-        Assert.IsTrue(isApprox(reader.ReadQuaternionRot(), q));
+        Assert.IsTrue(IsApprox(reader.ReadQuaternionRot(), q));
         Assert.IsFalse(reader.ReadBool());
         Assert.IsTrue(reader.ReadVector3() == Vector3.one);
         Assert.IsTrue(reader.ReadVector3() == vec);
-
-        Debug.Log("---Finish TestBitstream");
     }
 
     // Test the UDP code for both server and client
-    // it doesn't have assertions but it will test
-    // if the server can receive msgs from 2 clients at
-    // the same time.
-    static void TestUDP()
-    {
-        Dictionary<EndPoint, Queue<string>> messageDictionary = new Dictionary<EndPoint, Queue<string>>();
+    static void TestUDP() {
+        string sAddr = "127.0.0.1";
+        int sPort = 9019;
+        int cCount = 2;
 
-        // create a server
-        UDPSocket s = new UDPSocket(messageDictionary);
-        s.Server("127.0.0.1", 37373);
+        // 1 server, cCount client.
+        // per client send msg twices
+        Dictionary<EndPoint, Queue<byte[]>> ep2msg = new Dictionary<EndPoint, Queue<byte[]>>();
+        UDPSocket sv = new UDPSocket(ep2msg);
+        sv.Server(sAddr,sPort);
+        Thread[] threads = new Thread[cCount];
+        EndPoint[] eps = new EndPoint[cCount];
+        List<byte[]> msgs = new List<byte[]>();
+        for (int i = 0; i < cCount; i++) {
+            msgs.Add(new BitStreamWriter().WriteInt16(i).GetBytes());
+            int ti = i;
+            threads[i] = new Thread(() => {
+                var client = new UDPSocket(new Queue<byte[]>());
+                client.Client(sAddr, sPort);
+                client.cSend(msgs[ti]);
+                client.cSend(msgs[ti]);
+                eps[ti] = client.g_socket.LocalEndPoint;
+            });
+            threads[i].Start();
+        }
+        foreach (var t in threads) {
+            t.Join();
+        }
+        SpinWait.SpinUntil(()=>{
+            return ep2msg.Keys.Count == cCount;
+        }, 5000);
 
-        // Dictionary<EndPoint, Queue<string>> updatedDictionary = s.getServerDictionary();
-
-        StartMultipleClient();
+        Assert.IsTrue(ep2msg.Keys.Count == cCount);
+        for (int i = 0; i < cCount; i++) {
+            BitStreamReader br = new BitStreamReader(ep2msg[eps[i]].Dequeue());
+            int num1 = br.ReadInt16();
+            int num2 = br.SetData(ep2msg[eps[i]].Dequeue()).ReadInt16();
+            Assert.IsTrue(num1 == i);
+            Assert.IsTrue(num2 == i);
+        }
     }
 
-    // This method creates multiple clients that 
-    // uses multi-thread to send msg to server.
-    static void StartMultipleClient()
-    {
-        Thread t1 = new Thread(() =>
-        {
-            int numberOfSeconds = 0;
-            while (numberOfSeconds < 5)
-            {
-                // Thread.Sleep(1000);
-
-                numberOfSeconds++;
-                // create a client and send to the server
-                UDPSocket client = new UDPSocket(new Queue<string>());
-                client.Client("127.0.0.1", 37373);
-                client.cSend("Client222222 send!");
-
-            }
-            Debug.Log("I ran for 5 seconds");
-        });
-
-        Thread t2 = new Thread(() =>
-        {
-            int numberOfSeconds = 0;
-            while (numberOfSeconds < 4)
-            {
-                // Thread.Sleep(1000);
-
-                numberOfSeconds++;
-                // create a client and send to the server
-                UDPSocket client = new UDPSocket(new Queue<string>());
-                client.Client("127.0.0.1", 37373);
-                client.cSend("Client111111 send!");
-            }
-            Debug.Log("I ran for 4 seconds");
-
-        });
-
-        t1.Start();
-        t2.Start();
-
-        //wait for t1 to finish
-        t1.Join();
-        //wait for t2 to finish
-        t2.Join();
-    }
-
-    void Start()
-    {
+    void Start() {
+        Debug.Log("TestBitstream----");
         TestBitStream();
+        Debug.Log("TestUDP----");
         TestUDP();
+
+        
+        Debug.Log("---All Test Finished--");
     }
 }

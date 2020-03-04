@@ -7,7 +7,10 @@ using System.Text;
 using UnityEngine;
 
 public class UDPSocket : IDisposable {
-    public Socket g_socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    private Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    public Socket Socket {
+        get => _socket;
+    }
     //Raw string data from client packets
     private Dictionary<EndPoint, Queue<byte[]>> _clientMessageDictionary;
 
@@ -28,9 +31,9 @@ public class UDPSocket : IDisposable {
     protected virtual void Dispose(bool disposing) {
         if (disposing) {
             // free managed resources
-            if (g_socket != null) {
-                g_socket.Dispose();
-                g_socket = null;
+            if (_socket != null) {
+                _socket.Dispose();
+                _socket = null;
             }
         }
     }
@@ -59,16 +62,16 @@ public class UDPSocket : IDisposable {
     }
 
     public void CloseSocket() {
-        g_socket.Close();
+        _socket.Close();
     }
 
     // Start/Bind a Server.
     public void Server(string address, int port) {
         //Bind to port.
         if (address == "all") {
-            g_socket.Bind(new IPEndPoint(IPAddress.Any, port));
+            _socket.Bind(new IPEndPoint(IPAddress.Any, port));
         } else {
-            g_socket.Bind(new IPEndPoint(IPAddress.Parse(address), port));
+            _socket.Bind(new IPEndPoint(IPAddress.Parse(address), port));
         }
         //Start receive callback process.
         Receive();
@@ -76,7 +79,7 @@ public class UDPSocket : IDisposable {
 
     // Setup a Client to Server socket.
     public void Client(string address, int port) {
-        g_socket.Connect(IPAddress.Parse(address), port);
+        _socket.Connect(IPAddress.Parse(address), port);
         //Start receive callback.
         Receive();
     }
@@ -84,7 +87,7 @@ public class UDPSocket : IDisposable {
     // ServerSend sends to any EndPoint from THIS server.
     public void ServerSend(byte[] data, EndPoint ep) {
         try {
-            g_socket.SendTo(data, ep);
+            _socket.SendTo(data, ep);
         } catch (Exception ex) {
             Console.WriteLine("ServerSend Exception: " + ex.Message);
         }
@@ -93,7 +96,7 @@ public class UDPSocket : IDisposable {
     // Client Send only sends to the connected Server.
     public void cSend(byte[] data) {
         try {
-            g_socket.Send(data);
+            _socket.Send(data);
         } catch (Exception ex) {
             Console.WriteLine("cSend Exception: " + ex.Message);
         }
@@ -103,7 +106,7 @@ public class UDPSocket : IDisposable {
     private void Receive() {
         try {
             State so = new State();
-            g_socket.BeginReceiveFrom(so.buffer, 0, BUF_SIZE, SocketFlags.None, ref so.epFrom, new AsyncCallback(_Receive), so);
+            _socket.BeginReceiveFrom(so.buffer, 0, BUF_SIZE, SocketFlags.None, ref so.epFrom, new AsyncCallback(_Receive), so);
         } catch (Exception) { }
     }
 
@@ -113,7 +116,7 @@ public class UDPSocket : IDisposable {
             // store the state through the async operation
             State so = (State) ar.AsyncState;
 
-            int dataCount = g_socket.EndReceiveFrom(ar, ref so.epFrom);
+            int dataCount = _socket.EndReceiveFrom(ar, ref so.epFrom);
             byte[] data = new byte[dataCount];
             Array.Copy(so.buffer, data, dataCount);
             if (_isClient) {
@@ -125,7 +128,7 @@ public class UDPSocket : IDisposable {
                 // Debug message to display the msg from client.
                 _clientMessageDictionary[so.epFrom].Enqueue(data);
             }
-            g_socket.BeginReceiveFrom(so.buffer, 0, BUF_SIZE, SocketFlags.None, ref so.epFrom, new AsyncCallback(_Receive), so);
+            _socket.BeginReceiveFrom(so.buffer, 0, BUF_SIZE, SocketFlags.None, ref so.epFrom, new AsyncCallback(_Receive), so);
         } catch (Exception) { }
     }
 }

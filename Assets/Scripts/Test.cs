@@ -90,7 +90,7 @@ public class Test : MonoBehaviour {
                 client.Client(sAddr, sPort);
                 client.cSend(msgs[ti]);
                 client.cSend(msgs[ti]);
-                eps[ti] = client.g_socket.LocalEndPoint;
+                eps[ti] = client.Socket.LocalEndPoint;
             });
             threads[i].Start();
         }
@@ -103,8 +103,7 @@ public class Test : MonoBehaviour {
 
         Assert.IsTrue(ep2msg.Keys.Count == cCount);
         for (int i = 0; i < cCount; i++) {
-            reader.SetBytes(ep2msg[eps[i]].Dequeue());
-            int num1 = reader.ReadInt16();
+            int num1 = reader.SetBytes(ep2msg[eps[i]].Dequeue()).ReadInt16();
             int num2 = reader.SetBytes(ep2msg[eps[i]].Dequeue()).ReadInt16();
             Assert.IsTrue(num1 == i);
             Assert.IsTrue(num2 == i);

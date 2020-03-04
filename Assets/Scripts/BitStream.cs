@@ -98,9 +98,7 @@ public class BitStreamWriter {
     private byte[] _data;
 
     public int LengthInBytes {
-        get{
-            return (_head+7)>>3;
-        }
+        get => (_head+7)>>3;
     }
 
     public BitStreamWriter(int capacity = 512 * 8) {

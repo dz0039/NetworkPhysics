@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(velocity * Input.GetAxis("Horizontal"));
         rb.AddForce(velocity * Input.GetAxis("Horizontal"),
             0f,
             velocity * Input.GetAxis("Vertical"));

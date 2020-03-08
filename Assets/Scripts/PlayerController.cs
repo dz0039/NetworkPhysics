@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     // Start is called before the first frame update
-    public float velocity = 5;
+    public float _velocity = 10;
     public Rigidbody rb;
 
     void Start()
@@ -16,8 +16,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rb.AddForce(velocity * Input.GetAxis("Horizontal"),
+        rb.AddForce(_velocity * Input.GetAxis("Horizontal"),
             0f,
-            velocity * Input.GetAxis("Vertical"));
+            _velocity * Input.GetAxis("Vertical"));
     }
 }

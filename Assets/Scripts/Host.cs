@@ -1,27 +1,33 @@
-using System.Net;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 /**
-* The host should start hosting a game session.
-* It should manage the game state by sending and 
-* receiving from any clients that connects.
-*/
-public class Host : MonoBehaviour
-{
-    private string sAddr = "127.0.0.1";
-    private int sPort = 3939;
+ * The host should start hosting a game session.
+ * It should manage the game state by sending and 
+ * receiving from any clients that connects.
+ */
+public class Host : MonoBehaviour {
+
+    public string HostIP { get => serverSocket.Socket.LocalEndPoint.ToString(); }
+
+    private string sAddr;
+    private int sPort;
 
     private UDPSocket serverSocket;
 
     private Dictionary<EndPoint, Queue<byte[]>> ep2msg;
     private Snapshot _snapshot;
 
-    // Initialize the host server to start listening
     void Start() {
         Assert.IsNull(FindObjectOfType<Client>());
+    }
+
+    public void Init(string address, int port) {
+        sAddr = address;
+        sPort = port;
 
         // endpoint to message dictionary
         ep2msg = new Dictionary<EndPoint, Queue<byte[]>>();
@@ -39,7 +45,7 @@ public class Host : MonoBehaviour
         foreach (var entry in ep2msg) {
             EndPoint ep = entry.Key;
             Queue<byte[]> msgQueue = entry.Value;
-            
+
             // dequeue the latest message from this endpoint
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
@@ -50,8 +56,8 @@ public class Host : MonoBehaviour
         Snapshot updatedSnapshot = Game.Instance.GetSnapshot();
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);
         // serverSend synced data in bytes to every endpoint
-        
-        foreach (var entry in ep2msg) { 
+
+        foreach (var entry in ep2msg) {
             serverSocket.ServerSend(updatedSnapshotInBytes, entry.Key);
         }
     }

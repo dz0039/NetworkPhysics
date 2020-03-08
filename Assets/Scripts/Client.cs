@@ -5,7 +5,6 @@ using UnityEngine.Assertions;
 
 public class Client : MonoBehaviour {
     /*
-         
          client side:
          send snapshot on frame n_client
          server side:
@@ -15,8 +14,9 @@ public class Client : MonoBehaviour {
          get snapshot from updated cube
              send
     */
-    private string serverAddr = "127.0.0.1"; // Temp
-    private int serverPort = 3939; // Temp
+    public string HostIP { get => socket.Socket.RemoteEndPoint.ToString(); }
+    private string serverAddr;
+    private int serverPort;
     private UDPSocket socket;
     private Queue<byte[]> serverSnapshots;
 
@@ -24,6 +24,11 @@ public class Client : MonoBehaviour {
 
     void Start() {
         Assert.IsNull(FindObjectOfType<Host>());
+    }
+
+    public void Init(string address, int port) {
+        serverAddr = address;
+        serverPort = port;
 
         this.serverSnapshots = new Queue<byte[]>();
         socket = new UDPSocket(serverSnapshots);
@@ -31,7 +36,6 @@ public class Client : MonoBehaviour {
 
         _snapshot = Game.Instance.GetSnapshot().Clone();
     }
-
     // Update is called once per frame
     void Update() {
         // Send snapshot to sever

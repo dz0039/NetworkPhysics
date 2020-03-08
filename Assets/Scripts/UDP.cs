@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -94,11 +94,11 @@ public class UDPSocket : IDisposable {
     }
 
     // Client Send only sends to the connected Server.
-    public void cSend(byte[] data) {
+    public void ClientSend(byte[] data) {
         try {
             _socket.Send(data);
         } catch (Exception ex) {
-            Console.WriteLine("cSend Exception: " + ex.Message);
+            Console.WriteLine("ClientSend Exception: " + ex.Message);
         }
     }
 
@@ -131,4 +131,5 @@ public class UDPSocket : IDisposable {
             _socket.BeginReceiveFrom(so.buffer, 0, BUF_SIZE, SocketFlags.None, ref so.epFrom, new AsyncCallback(_Receive), so);
         } catch (Exception) { }
     }
+
 }

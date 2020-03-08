@@ -5,15 +5,15 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+[DefaultExecutionOrder(-1)]
 public class Test : MonoBehaviour {
-#region  Helper
+    #region  Helper
     static bool IsApprox(Quaternion q1, Quaternion q2) {
         // 1 deg in 1 axis -> 0.0000004f
         return Mathf.Abs(Quaternion.Dot(q1, q2)) >= 1 - 0.0000004f;
     }
 
-#endregion
-
+    #endregion
 
     static void TestBitStream() {
         BitStreamWriter writer = new BitStreamWriter(2);
@@ -78,7 +78,7 @@ public class Test : MonoBehaviour {
         // per client send msg twices
         Dictionary<EndPoint, Queue<byte[]>> ep2msg = new Dictionary<EndPoint, Queue<byte[]>>();
         UDPSocket sv = new UDPSocket(ep2msg);
-        sv.Server(sAddr,sPort);
+        sv.Server(sAddr, sPort);
         Thread[] threads = new Thread[cCount];
         EndPoint[] eps = new EndPoint[cCount];
         List<byte[]> msgs = new List<byte[]>();
@@ -88,8 +88,8 @@ public class Test : MonoBehaviour {
             threads[i] = new Thread(() => {
                 var client = new UDPSocket(new Queue<byte[]>());
                 client.Client(sAddr, sPort);
-                client.cSend(msgs[ti]);
-                client.cSend(msgs[ti]);
+                client.ClientSend(msgs[ti]);
+                client.ClientSend(msgs[ti]);
                 eps[ti] = client.Socket.LocalEndPoint;
             });
             threads[i].Start();
@@ -97,7 +97,7 @@ public class Test : MonoBehaviour {
         foreach (var t in threads) {
             t.Join();
         }
-        SpinWait.SpinUntil(()=>{
+        SpinWait.SpinUntil(() => {
             return ep2msg.Keys.Count == cCount;
         }, 5000);
 
@@ -116,7 +116,6 @@ public class Test : MonoBehaviour {
         Debug.Log("TestUDP----");
         TestUDP();
 
-        
         Debug.Log("---All Test Finished--");
     }
 }

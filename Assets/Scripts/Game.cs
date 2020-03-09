@@ -12,6 +12,8 @@ using UnityEngine.Assertions;
 */
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
+    public float visualSmoothCoef;
+
     public GameObject cubeRenderPrefab;
     public GameObject cubePhysicPrefab;
     public GameObject playerPrefab;
@@ -55,11 +57,15 @@ public class Game : MonoBehaviour {
     }
 
     void Update() {
-        for(int i = 0; i < _snapshot.CubeCount; i++) {
-            _snapshot.renderCubeTrans[i].position = _snapshot.cubeStates[i].Position;
+        for (int i = 0; i < _snapshot.CubeCount; i++) {
+            _snapshot.renderCubeTrans[i].position = Vector3.Lerp(_snapshot.renderCubeTrans[i].position,
+                _snapshot.cubeStates[i].Position,
+                Time.deltaTime * visualSmoothCoef);
+            _snapshot.renderCubeTrans[i].rotation = Quaternion.Lerp(_snapshot.renderCubeTrans[i].rotation,
+                _snapshot.cubeStates[i].Rotation,
+                Time.deltaTime * visualSmoothCoef);
         }
     }
-
 
     // Initialize all the cubes on the plane with distance with each other
     // and form a square.

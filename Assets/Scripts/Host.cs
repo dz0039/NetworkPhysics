@@ -55,11 +55,14 @@ public class Host : MonoBehaviour {
             EndPoint ep = entry.Key;
             Queue<byte[]> msgQueue = entry.Value;
 
+            if (msgQueue.Count == 0) {
+                continue; // Skip this client
+            }
             // dequeue the latest message from this endpoint
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
             Snapshot.FromBytes(_snapshot, currentSnapshotInBytes);
-            Game.Instance.ApplySnapshot(_snapshot, true);
+            Game.Instance.ApplySnapshot(_snapshot);
         }
 
         Snapshot updatedSnapshot = Game.Instance.GetSnapshot();

@@ -48,7 +48,7 @@ public class Client : MonoBehaviour {
             byte[] packet = _serverMsg.Dequeue();
 
             Snapshot.FromBytes(_snapshot, packet);
-            Game.Instance.ApplySnapshot(_snapshot, false);
+            Game.Instance.ApplySnapshot(_snapshot);
         }
     }
 }

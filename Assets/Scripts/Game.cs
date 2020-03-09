@@ -126,20 +126,17 @@ public class Game : MonoBehaviour {
 
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine
-    public void ApplySnapshot(Snapshot snapshot, bool interpolate) {
+    public void ApplySnapshot(Snapshot snapshot) {
         foreach (RBObj rbObj in snapshot.cubeStates) {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
-            if (interpolate) {
-                // id
-            } else {
-                // Just set the position and orientation directly
-                localVObj.ApplyRB(
-                    rbObj.Position,
-                    rbObj.Rotation,
-                    rbObj.LVelocity,
-                    rbObj.AVelocity
-                );
-            }
+
+            // Just set the position and orientation directly
+            localVObj.ApplyRB(
+                rbObj.Position,
+                rbObj.Rotation,
+                rbObj.LVelocity,
+                rbObj.AVelocity
+            );
         }
 
         // Disable "inactive" players
@@ -150,17 +147,13 @@ public class Game : MonoBehaviour {
         foreach (RBObj player in snapshot.playerStates) {
             RBObj localVObj = _snapshot.playerStates[player.Id];
             localVObj.SetActive(true);
-            if (interpolate) {
-                // idk
-            } else {
-                // Just set the position and orientation directly
-                localVObj.ApplyRB(
-                    player.Position,
-                    player.Rotation,
-                    player.LVelocity,
-                    player.AVelocity
-                );
-            }
+            // Just set the position and orientation directly
+            localVObj.ApplyRB(
+                player.Position,
+                player.Rotation,
+                player.LVelocity,
+                player.AVelocity
+            );
         }
 
     }

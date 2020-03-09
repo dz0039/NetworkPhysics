@@ -6,8 +6,8 @@ using UnityEngine;
 public class ModeSelection : MonoBehaviour {
     bool isStarted = false;
     string addrstr = "addr";
-    string portstr_h = "";
-    string portstr_c = "";
+    string portstr_h = "12345";
+    string portstr_c = "12345";
     private int playerId = 0;
     private string[] toolbarStrings = {"p1", "p2", "p3", "p4", "p5", "p6"};
     
@@ -20,6 +20,7 @@ public class ModeSelection : MonoBehaviour {
             socket.Connect("8.8.8.8", 65530);
             IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
             localIP = endPoint;
+            addrstr = localIP.Address.ToString();
         }
     }
 

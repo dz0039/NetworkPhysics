@@ -12,7 +12,7 @@ using UnityEngine.Assertions;
 */
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
-    public float visualSmoothCoef;
+    public const float visualSmoothCoef = .2f; // Value between 0 and 1, determines how much we smooth the render transform.
 
     public GameObject cubeRenderPrefab;
     public GameObject cubePhysicPrefab;
@@ -20,6 +20,7 @@ public class Game : MonoBehaviour {
 
     private Snapshot _snapshot; // Always contains all cubes
     private int _mainPlayerId; // should always be 0
+    private Transform[] renderCubeTrans; // TODO: bad style
 
     private static Game _instance;
     public static Game Instance { get => _instance; }
@@ -38,7 +39,7 @@ public class Game : MonoBehaviour {
     public void InitGame(int player) {
         _snapshot = new Snapshot();
         // init scene
-        InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out _snapshot.renderCubeTrans);
+        InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out renderCubeTrans);
         Debug.Log("[Init cubes]" + _snapshot.cubeStates.Length);
         _snapshot.playerStates = InitPlayers(playerPrefab);
         Debug.Log("[Init players]" + _snapshot.playerStates.Length);
@@ -58,12 +59,12 @@ public class Game : MonoBehaviour {
 
     void Update() {
         for (int i = 0; i < _snapshot.CubeCount; i++) {
-            _snapshot.renderCubeTrans[i].position = Vector3.Lerp(_snapshot.renderCubeTrans[i].position,
+            renderCubeTrans[i].position = Vector3.Lerp(renderCubeTrans[i].position,
                 _snapshot.cubeStates[i].Position,
-                Time.deltaTime * visualSmoothCoef);
-            _snapshot.renderCubeTrans[i].rotation = Quaternion.Lerp(_snapshot.renderCubeTrans[i].rotation,
+                visualSmoothCoef);
+            renderCubeTrans[i].rotation = Quaternion.Slerp(renderCubeTrans[i].rotation,
                 _snapshot.cubeStates[i].Rotation,
-                Time.deltaTime * visualSmoothCoef);
+                visualSmoothCoef);
         }
     }
 

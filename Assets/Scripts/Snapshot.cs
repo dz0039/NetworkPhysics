@@ -50,7 +50,6 @@ public class RBObj {
 
 public class Snapshot {
     public RBObj[] cubeStates;
-    public Transform[] renderCubeTrans; // TODO: bad style
     public RBObj[] playerStates;
 
 
@@ -145,7 +144,6 @@ public class Snapshot {
         _writer.WriteQuaternionRot(rbobj.Rotation);
         _writer.WriteVector3(rbobj.LVelocity);
         _writer.WriteVector3(rbobj.AVelocity);
-        _writer.WriteInt16(rbobj.Priority);
     }
 
     private static void ReadRBObj(RBObj[] rbobjs) {
@@ -155,6 +153,5 @@ public class Snapshot {
         rbobj.Rotation = _reader.ReadQuaternionRot();
         rbobj.LVelocity = _reader.ReadVector3();
         rbobj.AVelocity = _reader.ReadVector3();
-        rbobj.Priority = _reader.ReadInt16();
     }
 }

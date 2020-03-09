@@ -11,6 +11,8 @@ using UnityEngine.Assertions;
  */
 public class Host : MonoBehaviour {
 
+    const float c_interval = 0.11f;
+
     public string HostIP { get => serverSocket.Socket.LocalEndPoint.ToString(); }
 
     private string sAddr;

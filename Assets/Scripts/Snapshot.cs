@@ -26,12 +26,19 @@ public class RBObj {
     public RBObj ApplyRB(Vector3 pos, Quaternion rot, Vector3 lv, Vector3 av) {
         if (!_rb) _rb = Go.GetComponent<Rigidbody>();
         // TODO: hermit
-        _rb.position = Position= pos;
-        _rb.rotation = Rotation= rot;
-        _rb.velocity = LVelocity= lv;
+        _rb.position = pos;
+        _rb.rotation = rot;
+        _rb.velocity = lv;
         _rb.angularVelocity = AVelocity = av;
 
         return this;
+    }
+
+    public void UpdateFromRigid() {
+        Position = _rb.position;
+        Rotation = _rb.rotation;
+        LVelocity = _rb.velocity;
+        AVelocity = _rb.angularVelocity;
     }
 
     public RBObj Clone() {
@@ -62,6 +69,17 @@ public class Snapshot {
         }
 
         return snap;
+    }
+
+
+    public void UpdateFromRigid() {
+        foreach(RBObj rb in cubeStates) {
+            rb.UpdateFromRigid();
+        }
+        // null?
+        foreach(RBObj rb in playerStates) {
+            rb.UpdateFromRigid();
+        }
     }
 
     public static void FromBytes(Snapshot snapshot, byte[] data) {

@@ -99,6 +99,7 @@ public class Game : MonoBehaviour {
     // Gets the snapshot of the current game scene
     // @returns a Snapshot object
     public Snapshot GetSnapshot() {
+        _snapshot.UpdateFromRigid();
         return _snapshot;
     }
 

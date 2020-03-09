@@ -50,7 +50,9 @@ public class RBObj {
 
 public class Snapshot {
     public RBObj[] cubeStates;
+    public Transform[] renderCubeTrans; // TODO: bad style
     public RBObj[] playerStates;
+
 
     public int CubeCount { get => cubeStates.Length; }
     public int PlayerCount { get => playerStates.Length; }

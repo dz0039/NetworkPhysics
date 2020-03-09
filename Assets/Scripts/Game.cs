@@ -12,7 +12,8 @@ using UnityEngine.Assertions;
 */
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
-    public GameObject cubePrefab;
+    public GameObject cubeRenderPrefab;
+    public GameObject cubePhysicPrefab;
     public GameObject playerPrefab;
 
     private Snapshot _snapshot; // Always contains all cubes
@@ -35,7 +36,7 @@ public class Game : MonoBehaviour {
     public void InitGame(int player) {
         _snapshot = new Snapshot();
         // init scene
-        _snapshot.cubeStates = InitSceneCubes(cubePrefab);
+        InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out _snapshot.renderCubeTrans);
         Debug.Log("[Init cubes]" + _snapshot.cubeStates.Length);
         _snapshot.playerStates = InitPlayers(playerPrefab);
         Debug.Log("[Init players]" + _snapshot.playerStates.Length);
@@ -53,31 +54,39 @@ public class Game : MonoBehaviour {
         }
     }
 
+    void Update() {
+        for(int i = 0; i < _snapshot.CubeCount; i++) {
+            _snapshot.renderCubeTrans[i].position = _snapshot.cubeStates[i].Position;
+        }
+    }
+
+
     // Initialize all the cubes on the plane with distance with each other
     // and form a square.
     // @param accepts the prefab of cube as the game object
     // @returns an array that contains all the rigid body objects
-    private static RBObj[] InitSceneCubes(GameObject prefab) {
+    private static void InitSceneCubes(GameObject prefabPhy, GameObject prefabRender, out RBObj[] cubeStates, out Transform[] renderTransforms) {
         float bound = 8.0f;
         float space = 1.6f; // the gap between each cube
         int n = 0;
         for (float i = -bound; i < bound; i += space) n++;
         n *= n;
-        var res = new RBObj[n];
+        cubeStates = new RBObj[n];
+        renderTransforms = new Transform[n];
         for (float i = -bound; i < bound; i += space) {
             for (float j = -bound; j < bound; j += space) {
-                res[--n] = new RBObj {
+                cubeStates[--n] = new RBObj {
                 Id = n,
                 Position = new Vector3(i, 3.0f, j),
                 Rotation = Quaternion.identity,
                 LVelocity = Vector3.zero,
                 AVelocity = Vector3.zero,
-                Go = Instantiate(prefab, new Vector3(i, 1.0f, j), Quaternion.identity),
+                Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
                 Priority = 1
                 };
+                renderTransforms[n] = Instantiate(prefabRender, new Vector3(i, 1.0f, j), Quaternion.identity).transform;
             }
         }
-        return res;
     }
 
     // Initialize the players on the plane.

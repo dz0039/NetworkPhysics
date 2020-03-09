@@ -30,7 +30,9 @@ public class Game : MonoBehaviour {
         Assert.IsNull(_instance);
         _instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
+    public void InitGame(int player) {
         _snapshot = new Snapshot();
         // init scene
         _snapshot.cubeStates = InitSceneCubes(cubePrefab);
@@ -39,14 +41,9 @@ public class Game : MonoBehaviour {
         Debug.Log("[Init players]" + _snapshot.playerStates.Length);
         // init main player
         Assert.IsTrue(_snapshot.playerStates.Length > 1);
-        _mainPlayerId = 0;
+        _mainPlayerId = player;
         _snapshot.playerStates[_mainPlayerId].Go.AddComponent<PlayerController>();
-        _snapshot.playerStates[_mainPlayerId].ApplyRB(
-            new Vector3(0, 1, 0),
-            Quaternion.identity,
-            Vector3.zero,
-            Vector3.zero
-        ).SetActive(true);
+        _snapshot.playerStates[_mainPlayerId].SetActive(true);
     }
 
     // Initialize all the cubes on the plane with distance with each other
@@ -83,13 +80,14 @@ public class Game : MonoBehaviour {
         int n = 6;
         var res = new RBObj[n];
         for (int i = 0; i < n; i++) {
+            Vector3 v3 = new Vector3(0.4f*Mathf.Sin(Mathf.PI * (float)i/(float)(n-1)), 3, 0.4f*Mathf.Cos(Mathf.PI * (float)i/(float)(n-1)));
             res[i] = new RBObj {
                 Id = i,
-                    Position = Vector3.zero,
+                    Position = v3,
                     Rotation = Quaternion.identity,
                     LVelocity = Vector3.zero,
                     AVelocity = Vector3.zero,
-                    Go = Instantiate(prefab, Vector3.zero, Quaternion.identity),
+                    Go = Instantiate(prefab, v3, Quaternion.identity),
                     Priority = 1
             }.SetActive(false);
         }
@@ -106,15 +104,6 @@ public class Game : MonoBehaviour {
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine
     public void ApplySnapshot(Snapshot snapshot, bool interpolate) {
-        // TODO:
-        // for each cube?
-        //   update status using one with highest priority if in (mySnap U newSnap)
-        //   recalculating priority
-        // adjust mySnap
-        // for each player in mySnap
-        //   not exist in scene -> create
-        //   not found -> diable
-
         foreach (RBObj rbObj in snapshot.cubeStates) {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
             if (interpolate) {

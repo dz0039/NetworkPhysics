@@ -22,15 +22,6 @@ public class BitStreamReader {
         _data = data;
     }
 
-
-    // // append bytes to the end of current BitReader
-    // public BitStreamReader AddBytes(byte[] data) {
-    //     _head = 0;
-        
-
-    //     return this;
-    // }
-
     public BitStreamReader SetBytes(byte[] data) {
         _head = 0;
         _data = data;

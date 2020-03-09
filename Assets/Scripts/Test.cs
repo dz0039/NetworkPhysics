@@ -116,7 +116,7 @@ public class Test : MonoBehaviour {
 
         BitStreamWriter writer = new BitStreamWriter();
         BitStreamReader reader = new BitStreamReader();
-        for (int i = 0; i < 500; i++) 
+        for (int i = 0; i < 800; i++) 
             writer.WriteInt16(0xffff);
 
         Dictionary<EndPoint, Queue<byte[]>> svQueue = new Dictionary<EndPoint, Queue<byte[]>>();
@@ -128,13 +128,16 @@ public class Test : MonoBehaviour {
         client.Client(sAddr, sPort);
 
         sv.ServerSend(writer.DumpBytes(), client.Socket.LocalEndPoint);
+        
+        SpinWait.SpinUntil(() => {
+            return clientQueue.Count != 0;
+        }, 5000);
 
-        Debug.Log(clientQueue.Count); 
-        Assert.IsTrue(clientQueue.Count == 1);
+        reader.SetBytes(clientQueue.Dequeue());
 
-        // for(int i =0 ;i < 500; i++) {
-        //     if (reader.)
-        // }
+        for(int i =0 ;i < 800; i++) {
+            Assert.IsTrue(reader.ReadInt16() == 0xffff);
+        }
     }
 
     void Start() {

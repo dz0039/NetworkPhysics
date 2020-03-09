@@ -11,6 +11,7 @@ public class UDPSocket : IDisposable {
     public Socket Socket {
         get => _socket;
     }
+    
     //Raw string data from client packets
     private Dictionary<EndPoint, Queue<byte[]>> _clientMessageDictionary;
 

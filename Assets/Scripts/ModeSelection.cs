@@ -8,6 +8,9 @@ public class ModeSelection : MonoBehaviour {
     string addrstr = "addr";
     string portstr_h = "";
     string portstr_c = "";
+    private int playerId = 0;
+    private string[] toolbarStrings = {"p1", "p2", "p3", "p4", "p5", "p6"};
+    
     IPEndPoint localIP;
     Host host = null;
     Client client = null;
@@ -23,7 +26,11 @@ public class ModeSelection : MonoBehaviour {
     void OnGUI() {
         if (!isStarted) {
             GUI.BeginGroup(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 100, 400, 200));
+
+            playerId = GUI.Toolbar (new Rect (0,100, 400, 40), playerId, toolbarStrings);
+
             if (GUI.Button(new Rect(10, 10, 180, 30), "As Host")) {
+                Game.Instance.InitGame(playerId);
                 host = gameObject.AddComponent<Host>();
                 host.Init(localIP.Address.ToString(), Convert.ToInt32(portstr_h));
                 isStarted = true;
@@ -32,6 +39,7 @@ public class ModeSelection : MonoBehaviour {
             portstr_h = GUI.TextField(new Rect(145, 50, 45, 40), portstr_h);
 
             if (GUI.Button(new Rect(200, 10, 180, 30), "As Client")) {
+                Game.Instance.InitGame(playerId);
                 client = gameObject.AddComponent<Client>();
                 client.Init(addrstr, Convert.ToInt32(portstr_c));
                 isStarted = true;

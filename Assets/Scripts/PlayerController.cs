@@ -19,5 +19,9 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(_velocity * Input.GetAxis("Horizontal"),
             0f,
             _velocity * Input.GetAxis("Vertical"));
+         if (Input.GetKeyDown ("space")) {
+             Vector3 up = transform.TransformDirection (Vector3.up);
+             rb.AddForce(up * 50, ForceMode.Impulse);
+         }
     }
 }

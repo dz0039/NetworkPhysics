@@ -11,7 +11,8 @@ using UnityEngine.Assertions;
  */
 public class Host : MonoBehaviour {
 
-    const float c_interval = 0.11f;
+    const float c_interval = 1f/10f;
+    float _timeUntilNextUpdate = 0.0f;
 
     public string HostIP { get => serverSocket.Socket.LocalEndPoint.ToString(); }
 
@@ -43,6 +44,12 @@ public class Host : MonoBehaviour {
     // the host will arrange to check about the snapshot
     // and sync for all.
     void Update() {
+        _timeUntilNextUpdate -= Time.deltaTime;
+        if (_timeUntilNextUpdate < 0)
+            _timeUntilNextUpdate = c_interval;
+        else
+            return;
+
         // read data from client end points
         foreach (var entry in ep2msg) {
             EndPoint ep = entry.Key;

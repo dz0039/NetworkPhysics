@@ -35,6 +35,7 @@ public class RBObj {
     }
 
     public void UpdateFromRigid() {
+        if (!_rb) _rb = Go.GetComponent<Rigidbody>();
         Position = _rb.position;
         Rotation = _rb.rotation;
         LVelocity = _rb.velocity;
@@ -71,20 +72,19 @@ public class Snapshot {
         return snap;
     }
 
-
     public void UpdateFromRigid() {
-        foreach(RBObj rb in cubeStates) {
+        foreach (RBObj rb in cubeStates) {
             rb.UpdateFromRigid();
         }
         // null?
-        foreach(RBObj rb in playerStates) {
+        foreach (RBObj rb in playerStates) {
             rb.UpdateFromRigid();
         }
     }
 
     public static void FromBytes(Snapshot snapshot, byte[] data) {
         _reader.SetBytes(data);
-        
+
         int playerCount = _reader.ReadInt16();
         int cubeCount = _reader.ReadInt16();
         for (int i = 0; i < playerCount; i++) {
@@ -105,7 +105,7 @@ public class Snapshot {
     */
     public static byte[] ToBytes(Snapshot snapshot) {
         _writer.DumpBytes();
-        
+
         int playerCount = 0;
         int cubeCount = 0;
         List<RBObj> rbs = new List<RBObj>();
@@ -123,7 +123,7 @@ public class Snapshot {
 
         _writer.WriteInt16(playerCount);
         _writer.WriteInt16(cubeCount);
-        foreach(var rb in rbs) WriteRBObj(rb);
+        foreach (var rb in rbs) WriteRBObj(rb);
 
         return _writer.DumpBytes();
     }

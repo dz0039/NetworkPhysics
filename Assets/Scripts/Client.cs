@@ -4,16 +4,9 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 public class Client : MonoBehaviour {
-    /*
-         client side:
-         send snapshot on frame n_client
-         server side:
-         receiving all clients
-         for each cube
-             render use the most recent snapshot
-         get snapshot from updated cube
-             send
-    */
+    const float c_interval = 1f/6f;
+    float _timeUntilNextUpdate = 0.0f;
+
     public string HostIP { get => socket.Socket.RemoteEndPoint.ToString(); }
     private string serverAddr;
     private int serverPort;
@@ -38,6 +31,13 @@ public class Client : MonoBehaviour {
     }
     // Update is called once per frame
     void Update() {
+        _timeUntilNextUpdate -= Time.deltaTime;
+        if (_timeUntilNextUpdate < 0)
+            _timeUntilNextUpdate = c_interval;
+        else
+            return;
+
+
         // Send snapshot to sever
         Snapshot clientSnapshot = Game.Instance.GetSnapshot();
         byte[] asBytes = Snapshot.ToBytes(clientSnapshot);

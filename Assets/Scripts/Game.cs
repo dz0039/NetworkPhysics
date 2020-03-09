@@ -46,6 +46,13 @@ public class Game : MonoBehaviour {
         _snapshot.playerStates[_mainPlayerId].SetActive(true);
     }
 
+    void FixedUpdate() {
+        Vector3 ori = _snapshot.playerStates[_mainPlayerId].Position;
+        foreach (var rbObj in _snapshot.cubeStates) {
+            rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Force);
+        }
+    }
+
     // Initialize all the cubes on the plane with distance with each other
     // and form a square.
     // @param accepts the prefab of cube as the game object
@@ -80,7 +87,7 @@ public class Game : MonoBehaviour {
         int n = 6;
         var res = new RBObj[n];
         for (int i = 0; i < n; i++) {
-            Vector3 v3 = new Vector3(0.4f*Mathf.Sin(Mathf.PI * (float)i/(float)(n-1)), 3, 0.4f*Mathf.Cos(Mathf.PI * (float)i/(float)(n-1)));
+            Vector3 v3 = new Vector3(0.4f * Mathf.Sin(Mathf.PI * (float) i / (float) (n - 1)), 3, 0.4f * Mathf.Cos(Mathf.PI * (float) i / (float) (n - 1)));
             res[i] = new RBObj {
                 Id = i,
                     Position = v3,

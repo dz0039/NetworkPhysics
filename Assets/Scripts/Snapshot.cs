@@ -16,6 +16,7 @@ public class RBObj {
     public int Priority { get; set; } // only associate with main player
 
     private Rigidbody _rb = null;
+    public Rigidbody Rigidbody { get => _rb; }
 
     public RBObj SetActive(bool val) {
         // TODO: RB errors?

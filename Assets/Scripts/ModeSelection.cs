@@ -9,7 +9,6 @@ public class ModeSelection : MonoBehaviour {
     string portstr_h = "";
     string portstr_c = "";
     IPEndPoint localIP;
-
     Host host = null;
     Client client = null;
 

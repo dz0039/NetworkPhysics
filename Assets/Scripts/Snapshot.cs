@@ -16,7 +16,7 @@ public class RBObj {
     public int Priority { get; set; } // only associate with main player
 
     private Rigidbody _rb = null;
-    
+
     public RBObj SetActive(bool val) {
         // TODO: RB errors?
         Go.SetActive(val);
@@ -26,10 +26,11 @@ public class RBObj {
     public RBObj ApplyRB(Vector3 pos, Quaternion rot, Vector3 lv, Vector3 av) {
         if (!_rb) _rb = Go.GetComponent<Rigidbody>();
         // TODO: hermit
-        _rb.position = pos;
-        _rb.rotation = rot;
-        _rb.velocity = lv;
-        _rb.angularVelocity = av;
+        _rb.position = Position= pos;
+        _rb.rotation = Rotation= rot;
+        _rb.velocity = LVelocity= lv;
+        _rb.angularVelocity = AVelocity = av;
+
         return this;
     }
 

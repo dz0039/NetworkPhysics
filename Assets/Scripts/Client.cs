@@ -18,7 +18,7 @@ public class Client : MonoBehaviour {
     private string serverAddr;
     private int serverPort;
     private UDPSocket socket;
-    private Queue<byte[]> serverSnapshots;
+    private Queue<byte[]> _serverMsg;
 
     private Snapshot _snapshot;
 
@@ -30,8 +30,8 @@ public class Client : MonoBehaviour {
         serverAddr = address;
         serverPort = port;
 
-        this.serverSnapshots = new Queue<byte[]>();
-        socket = new UDPSocket(serverSnapshots);
+        this._serverMsg = new Queue<byte[]>();
+        socket = new UDPSocket(_serverMsg);
         socket.Client(serverAddr, serverPort);
 
         _snapshot = Game.Instance.GetSnapshot().Clone();
@@ -44,8 +44,8 @@ public class Client : MonoBehaviour {
         socket.ClientSend(asBytes);
 
         // Then recieve snapshot from server
-        while (serverSnapshots.Count != 0) {
-            byte[] packet = serverSnapshots.Dequeue();
+        while (_serverMsg.Count != 0) {
+            byte[] packet = _serverMsg.Dequeue();
 
             Snapshot.FromBytes(_snapshot, packet);
             Game.Instance.ApplySnapshot(_snapshot, false);

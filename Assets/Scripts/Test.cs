@@ -110,11 +110,41 @@ public class Test : MonoBehaviour {
         }
     }
 
+    static void TestLargeChunk() {
+        string sAddr = "127.0.0.1";
+        int sPort = 9020;
+
+        BitStreamWriter writer = new BitStreamWriter();
+        BitStreamReader reader = new BitStreamReader();
+        for (int i = 0; i < 500; i++) 
+            writer.WriteInt16(0xffff);
+
+        Dictionary<EndPoint, Queue<byte[]>> svQueue = new Dictionary<EndPoint, Queue<byte[]>>();
+        var clientQueue = new Queue<byte[]>();
+
+        UDPSocket sv = new UDPSocket(svQueue);
+        sv.Server(sAddr, sPort);
+        UDPSocket client = new UDPSocket(clientQueue);
+        client.Client(sAddr, sPort);
+
+        sv.ServerSend(writer.DumpBytes(), client.Socket.LocalEndPoint);
+
+        Debug.Log(clientQueue.Count); 
+        Assert.IsTrue(clientQueue.Count == 1);
+
+        // for(int i =0 ;i < 500; i++) {
+        //     if (reader.)
+        // }
+    }
+
     void Start() {
         Debug.Log("TestBitstream----");
         TestBitStream();
         Debug.Log("TestUDP----");
         TestUDP();
+        Debug.Log("TestLargeChunkUDP----");
+        TestLargeChunk();
+
 
         Debug.Log("---All Test Finished--");
     }

@@ -73,7 +73,13 @@ public class BitStreamReader {
         q.x = ReadFloat();
         q.y = ReadFloat();
         q.z = ReadFloat();
-        q.w = (float) Math.Sqrt(1f - q.x*q.x - q.y*q.y -q.z*q.z);
+        
+        float temp = 1f - q.x*q.x - q.y*q.y -q.z*q.z;
+        if (temp > 0) {
+            q.w = (float) Math.Sqrt(1f - q.x*q.x - q.y*q.y -q.z*q.z);
+        } else {
+            q.w = 0;
+        }
         return q;
     }
 

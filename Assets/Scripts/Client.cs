@@ -30,7 +30,7 @@ public class Client : MonoBehaviour {
         _snapshot = Game.Instance.GetSnapshot().Clone();
     }
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         _timeUntilNextUpdate -= Time.deltaTime;
         if (_timeUntilNextUpdate < 0)
             _timeUntilNextUpdate = c_interval;

@@ -43,7 +43,7 @@ public class Host : MonoBehaviour {
     // When any clients or host's game state changes,
     // the host will arrange to check about the snapshot
     // and sync for all.
-    void Update() {
+    void FixedUpdate() {
         _timeUntilNextUpdate -= Time.deltaTime;
         if (_timeUntilNextUpdate < 0)
             _timeUntilNextUpdate = c_interval;

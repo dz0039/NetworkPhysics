@@ -18,7 +18,7 @@ public class PrioritySender {
     }
 
     public void updateAccumulator() {
-        Snapshot snapshot = Game.Instance.GetSnapshot();
+        Snapshot snapshot = Game.Instance.Snapshot;
 
         foreach (RBObj rbObj in snapshot.playerStates)
         {

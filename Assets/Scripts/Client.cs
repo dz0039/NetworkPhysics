@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 public class Client : MonoBehaviour {
-    const float c_interval = 1f/6f;
+    const float c_interval = 1f/10f;
     float _timeUntilNextUpdate = 0.0f;
 
     public string HostIP { get => socket.Socket.RemoteEndPoint.ToString(); }
@@ -27,11 +27,11 @@ public class Client : MonoBehaviour {
         socket = new UDPSocket(_serverMsg);
         socket.Client(serverAddr, serverPort);
 
-        _snapshot = Game.Instance.GetSnapshot().Clone();
+        _snapshot = Game.Instance.Snapshot.Clone();
     }
     // Update is called once per frame
     void FixedUpdate() {
-        _timeUntilNextUpdate -= Time.deltaTime;
+        _timeUntilNextUpdate -= Time.fixedDeltaTime;
         if (_timeUntilNextUpdate < 0)
             _timeUntilNextUpdate = c_interval;
         else
@@ -39,7 +39,7 @@ public class Client : MonoBehaviour {
 
 
         // Send snapshot to sever
-        Snapshot clientSnapshot = Game.Instance.GetSnapshot();
+        Snapshot clientSnapshot = Game.Instance.Snapshot;
         byte[] asBytes = Snapshot.ToBytes(clientSnapshot);
         socket.ClientSend(asBytes);
 

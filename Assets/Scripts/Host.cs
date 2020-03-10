@@ -11,7 +11,7 @@ using UnityEngine.Assertions;
  */
 public class Host : MonoBehaviour {
 
-    const float c_interval = 1f/10f;
+    const float c_interval = 1f/30f;
     float _timeUntilNextUpdate = 0.0f;
 
     public string HostIP { get => serverSocket.Socket.LocalEndPoint.ToString(); }
@@ -37,14 +37,14 @@ public class Host : MonoBehaviour {
         serverSocket = new UDPSocket(ep2msg);
         serverSocket.Server(sAddr, sPort);
 
-        _snapshot = Game.Instance.GetSnapshot().Clone();
+        _snapshot = Game.Instance.Snapshot.Clone();
     }
 
     // When any clients or host's game state changes,
     // the host will arrange to check about the snapshot
     // and sync for all.
     void FixedUpdate() {
-        _timeUntilNextUpdate -= Time.deltaTime;
+        _timeUntilNextUpdate -= Time.fixedDeltaTime;
         if (_timeUntilNextUpdate < 0)
             _timeUntilNextUpdate = c_interval;
         else
@@ -65,7 +65,9 @@ public class Host : MonoBehaviour {
             Game.Instance.ApplySnapshot(_snapshot);
         }
 
-        Snapshot updatedSnapshot = Game.Instance.GetSnapshot();
+        Game.Instance.UpdateSnapshot();
+
+        Snapshot updatedSnapshot = Game.Instance.Snapshot;
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);
         // serverSend synced data in bytes to every endpoint
 

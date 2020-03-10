@@ -20,7 +20,7 @@ public class Game : MonoBehaviour {
 
     private Snapshot _snapshot; // Always contains all cubes
     private int _mainPlayerId; // should always be 0
-    private Transform[] renderCubeTrans; // TODO: bad style
+    private Transform[] _renderCubeTrans; // TODO: bad style
 
     private static Game _instance;
     public static Game Instance { get => _instance; }
@@ -39,7 +39,7 @@ public class Game : MonoBehaviour {
     public void InitGame(int player) {
         _snapshot = new Snapshot();
         // init scene
-        InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out renderCubeTrans);
+        InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out _renderCubeTrans);
         Debug.Log("[Init cubes]" + _snapshot.cubeStates.Length);
         _snapshot.playerStates = InitPlayers(playerPrefab);
         Debug.Log("[Init players]" + _snapshot.playerStates.Length);
@@ -48,22 +48,24 @@ public class Game : MonoBehaviour {
         _mainPlayerId = player;
         _snapshot.playerStates[_mainPlayerId].Go.AddComponent<PlayerController>();
         _snapshot.playerStates[_mainPlayerId].SetActive(true);
+
+        UpdateSnapshot();
     }
 
     void FixedUpdate() {
         Vector3 ori = _snapshot.playerStates[_mainPlayerId].Position;
         foreach (var rbObj in _snapshot.cubeStates) {
-            rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Force);
+            rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Impulse);
         }
     }
 
     void Update() {
         for (int i = 0; i < _snapshot.CubeCount; i++) {
-            renderCubeTrans[i].position = Vector3.Lerp(renderCubeTrans[i].position,
-                _snapshot.cubeStates[i].Position,
+            _renderCubeTrans[i].position = Vector3.Lerp(_renderCubeTrans[i].position,
+                _snapshot.cubeStates[i].Go.transform.position,
                 visualSmoothCoef);
-            renderCubeTrans[i].rotation = Quaternion.Slerp(renderCubeTrans[i].rotation,
-                _snapshot.cubeStates[i].Rotation,
+            _renderCubeTrans[i].rotation = Quaternion.Slerp(_renderCubeTrans[i].rotation,
+                _snapshot.cubeStates[i].Go.transform.rotation,
                 visualSmoothCoef);
         }
     }
@@ -117,12 +119,9 @@ public class Game : MonoBehaviour {
         return res;
     }
 
-    // Gets the snapshot of the current game scene
-    // @returns a Snapshot object
-    public Snapshot GetSnapshot() {
-        _snapshot.UpdateFromRigid();
-        return _snapshot;
-    }
+    public Snapshot Snapshot { get => _snapshot; }
+    public void UpdateSnapshot() => _snapshot.UpdateFromRigid();
+
 
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine

@@ -61,8 +61,8 @@ public class Host : MonoBehaviour {
             // dequeue the latest message from this endpoint
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
-            Snapshot.FromBytes(_snapshot, currentSnapshotInBytes);
-            Game.Instance.ApplySnapshot(_snapshot, true);
+            Snapshot recieved = Snapshot.FromBytes(currentSnapshotInBytes);
+            Game.Instance.ApplySnapshot(recieved, true);
         }
 
         Game.Instance.UpdateSnapshot();

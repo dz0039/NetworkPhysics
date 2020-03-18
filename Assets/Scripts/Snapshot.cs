@@ -59,6 +59,13 @@ public class Snapshot {
     private static BitStreamReader _reader = new BitStreamReader();
     private static BitStreamWriter _writer = new BitStreamWriter();
 
+    public Snapshot() { }
+
+    public Snapshot(List<RBObj> playersList, List<RBObj> cubesList) {
+        cubeStates = cubesList.ToArray();
+        playerStates = playersList.ToArray();
+    }
+
     public Snapshot Clone() {
         Snapshot snap = new Snapshot();
         snap.cubeStates = new RBObj[CubeCount];
@@ -84,19 +91,22 @@ public class Snapshot {
         }
     }
 
-    public static void FromBytes(Snapshot snapshot, byte[] data) {
+    public static Snapshot FromBytes(byte[] data) {
         _reader.SetBytes(data);
 
         int playerCount = _reader.ReadInt16();
         int cubeCount = _reader.ReadInt16();
+        List<RBObj> players = new List<RBObj>();
+        List<RBObj> cubes = new List<RBObj>();
         for (int i = 0; i < playerCount; i++) {
             RBObj read = ReadRBObj();
-            snapshot.playerStates[read.Id] = read;
+            players.Add(read);
         }
         for (int i = 0; i < cubeCount; i++) {
             RBObj read = ReadRBObj();
-            snapshot.cubeStates[read.Id] = read;
+            cubes.Add(read);
         }
+        return new Snapshot(players, cubes);
     }
 
     /*

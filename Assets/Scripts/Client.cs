@@ -52,8 +52,8 @@ public class Client : MonoBehaviour {
         // Then recieve snapshot from server
         while (_serverMsg.Count != 0) {
             byte[] packet = _serverMsg.Dequeue();
-            Snapshot.FromBytes(_snapshot, packet);
-            Game.Instance.ApplySnapshot(_snapshot, false);
+            Snapshot recieved = Snapshot.FromBytes(packet);
+            Game.Instance.ApplySnapshot(recieved, false);
         }
     }
 }

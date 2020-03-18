@@ -17,7 +17,7 @@ public class ModeSelection : MonoBehaviour {
 
     void Start() {
         using(Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
-            socket.Connect("8.8.8.8", 65530);
+            socket.Connect("127.0.0.1", 65530);
             IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
             localIP = endPoint;
             addrstr = localIP.Address.ToString();

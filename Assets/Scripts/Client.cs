@@ -29,6 +29,12 @@ public class Client : MonoBehaviour {
 
         _snapshot = Game.Instance.Snapshot.Clone();
     }
+
+    // Close the client connection with the server. 
+    public void Close() {
+        socket.CloseSocket();
+    }
+
     // Update is called once per frame
     void FixedUpdate() {
         _timeUntilNextUpdate -= Time.fixedDeltaTime;
@@ -46,7 +52,7 @@ public class Client : MonoBehaviour {
         // Then recieve snapshot from server
         while (_serverMsg.Count != 0) {
             byte[] packet = _serverMsg.Dequeue();
-
+            Debug.Log(packet);
             Snapshot.FromBytes(_snapshot, packet);
             Game.Instance.ApplySnapshot(_snapshot);
         }

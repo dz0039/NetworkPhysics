@@ -25,6 +25,9 @@ public class Game : MonoBehaviour {
     private static Game _instance;
     public static Game Instance { get => _instance; }
 
+
+    private bool _isStarted;
+
     void Start() {
         if (_instance && _instance != this) {
             Debug.LogError("Singleton Error");
@@ -34,6 +37,7 @@ public class Game : MonoBehaviour {
         Assert.IsNull(_instance);
         _instance = this;
         DontDestroyOnLoad(gameObject);
+        _isStarted = false;
     }
 
     public void InitGame(int player) {
@@ -50,9 +54,12 @@ public class Game : MonoBehaviour {
         _snapshot.playerStates[_mainPlayerId].SetActive(true);
 
         UpdateSnapshot();
+
+        _isStarted = true;
     }
 
     void FixedUpdate() {
+        if (!_isStarted) return;
         Vector3 ori = _snapshot.playerStates[_mainPlayerId].Position;
         foreach (var rbObj in _snapshot.cubeStates) {
             rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Impulse);
@@ -60,6 +67,7 @@ public class Game : MonoBehaviour {
     }
 
     void Update() {
+        if (!_isStarted) return;
         for (int i = 0; i < _snapshot.CubeCount; i++) {
             _renderCubeTrans[i].position = Vector3.Lerp(_renderCubeTrans[i].position,
                 _snapshot.cubeStates[i].Go.transform.position,

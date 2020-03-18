@@ -56,9 +56,6 @@ public class Snapshot {
     public int CubeCount { get => cubeStates.Length; }
     public int PlayerCount { get => playerStates.Length; }
 
-    private static BitStreamReader _reader = new BitStreamReader();
-    private static BitStreamWriter _writer = new BitStreamWriter();
-
     public Snapshot() { }
 
     public Snapshot(List<RBObj> playersList, List<RBObj> cubesList) {
@@ -92,18 +89,19 @@ public class Snapshot {
     }
 
     public static Snapshot FromBytes(byte[] data) {
-        _reader.SetBytes(data);
+        BitStreamReader reader = new BitStreamReader();
+        reader.SetBytes(data);
 
-        int playerCount = _reader.ReadInt16();
-        int cubeCount = _reader.ReadInt16();
+        int playerCount = reader.ReadInt16();
+        int cubeCount = reader.ReadInt16();
         List<RBObj> players = new List<RBObj>();
         List<RBObj> cubes = new List<RBObj>();
         for (int i = 0; i < playerCount; i++) {
-            RBObj read = ReadRBObj();
+            RBObj read = ReadRBObj(reader);
             players.Add(read);
         }
         for (int i = 0; i < cubeCount; i++) {
-            RBObj read = ReadRBObj();
+            RBObj read = ReadRBObj(reader);
             cubes.Add(read);
         }
         return new Snapshot(players, cubes);
@@ -118,28 +116,20 @@ public class Snapshot {
         Not thread-safe
     */
     public static byte[] ToBytes(Snapshot snapshot) {
-        _writer.DumpBytes();
-
-        int playerCount = 0;
-        int cubeCount = 0;
-        List<RBObj> rbs = new List<RBObj>();
-
-        foreach (var player in snapshot.playerStates) {
-            playerCount++;
-            rbs.Add(player);
+        BitStreamWriter writer = new BitStreamWriter();
+        
+        writer.WriteInt16(snapshot.playerStates.Length);
+        writer.WriteInt16(snapshot.cubeStates.Length);
+        foreach (var player in snapshot.playerStates)
+        {
+            WriteRBObj(writer, player);
         }
-        foreach (var cube in snapshot.cubeStates) {
-            if (cube.Priority > 0) {
-                cubeCount++;
-                rbs.Add(cube);
-            }
+        foreach (var cube in snapshot.cubeStates)
+        {
+            WriteRBObj(writer, cube);
         }
 
-        _writer.WriteInt16(playerCount);
-        _writer.WriteInt16(cubeCount);
-        foreach (var rb in rbs) WriteRBObj(rb);
-
-        return _writer.DumpBytes();
+        return writer.DumpBytes();
     }
 
     /*
@@ -150,22 +140,22 @@ public class Snapshot {
         av
         priority
     */
-    private static void WriteRBObj(RBObj rbobj) {
-        _writer.WriteInt16(rbobj.Id);
-        _writer.WriteVector3(rbobj.Position);
-        _writer.WriteQuaternionRot(rbobj.Rotation);
-        _writer.WriteVector3(rbobj.LVelocity);
-        _writer.WriteVector3(rbobj.AVelocity);
+    private static void WriteRBObj(BitStreamWriter writer, RBObj rbobj) {
+        writer.WriteInt16(rbobj.Id);
+        writer.WriteVector3(rbobj.Position);
+        writer.WriteQuaternionRot(rbobj.Rotation);
+        writer.WriteVector3(rbobj.LVelocity);
+        writer.WriteVector3(rbobj.AVelocity);
     }
 
-    private static RBObj ReadRBObj()
+    private static RBObj ReadRBObj(BitStreamReader reader)
     {
         RBObj rbobj = new RBObj();
-        rbobj.Id = _reader.ReadInt16();
-        rbobj.Position = _reader.ReadVector3();
-        rbobj.Rotation = _reader.ReadQuaternionRot();
-        rbobj.LVelocity = _reader.ReadVector3();
-        rbobj.AVelocity = _reader.ReadVector3();
+        rbobj.Id = reader.ReadInt16();
+        rbobj.Position = reader.ReadVector3();
+        rbobj.Rotation = reader.ReadQuaternionRot();
+        rbobj.LVelocity = reader.ReadVector3();
+        rbobj.AVelocity = reader.ReadVector3();
         return rbobj;
     }
 }

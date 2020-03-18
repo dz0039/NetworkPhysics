@@ -90,10 +90,12 @@ public class Snapshot {
         int playerCount = _reader.ReadInt16();
         int cubeCount = _reader.ReadInt16();
         for (int i = 0; i < playerCount; i++) {
-            ReadRBObj(snapshot.playerStates);
+            RBObj read = ReadRBObj();
+            snapshot.playerStates[read.Id] = read;
         }
         for (int i = 0; i < cubeCount; i++) {
-            ReadRBObj(snapshot.cubeStates);
+            RBObj read = ReadRBObj();
+            snapshot.cubeStates[read.Id] = read;
         }
     }
 
@@ -146,12 +148,14 @@ public class Snapshot {
         _writer.WriteVector3(rbobj.AVelocity);
     }
 
-    private static void ReadRBObj(RBObj[] rbobjs) {
-        int id = _reader.ReadInt16();
-        RBObj rbobj = rbobjs[id];
+    private static RBObj ReadRBObj()
+    {
+        RBObj rbobj = new RBObj();
+        rbobj.Id = _reader.ReadInt16();
         rbobj.Position = _reader.ReadVector3();
         rbobj.Rotation = _reader.ReadQuaternionRot();
         rbobj.LVelocity = _reader.ReadVector3();
         rbobj.AVelocity = _reader.ReadVector3();
+        return rbobj;
     }
 }

@@ -21,9 +21,16 @@ public class Test : MonoBehaviour {
 
         // Resize, basic int
         writer.WriteInt32(0x12345678);
-        Assert.IsTrue(writer.LengthInBytes == 4);
-        reader = new BitStreamReader(writer.DumpBytes());
+        writer.WriteInt8(39);
+        writer.WriteInt(2,2);
+        writer.WriteInt(87,7);
+        writer.WriteInt(33,6);
+        reader.SetBytes(writer.DumpBytes());
         Assert.IsTrue(reader.ReadInt32() == 0x12345678);
+        Assert.IsTrue(reader.ReadInt8() == 39);
+        Assert.IsTrue(reader.ReadInt(2) == 2);
+        Assert.IsTrue(reader.ReadInt(7) == 87);
+        Assert.IsTrue(reader.ReadInt(6) == 33);
 
         // Concatnat bits
         // 1, 0000010 11000011, 1

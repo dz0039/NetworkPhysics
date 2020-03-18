@@ -62,7 +62,7 @@ public class Host : MonoBehaviour {
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
             Snapshot.FromBytes(_snapshot, currentSnapshotInBytes);
-            Game.Instance.ApplySnapshot(_snapshot);
+            Game.Instance.ApplySnapshot(_snapshot, true);
         }
 
         Game.Instance.UpdateSnapshot();

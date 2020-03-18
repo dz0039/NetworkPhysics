@@ -133,34 +133,51 @@ public class Game : MonoBehaviour {
 
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine
-    public void ApplySnapshot(Snapshot snapshot) {
-        foreach (RBObj rbObj in snapshot.cubeStates) {
+    public void ApplySnapshot(Snapshot snapshot, bool interpolate)
+    {
+        foreach (RBObj rbObj in snapshot.cubeStates)
+        {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
-
-            // Just set the position and orientation directly
-            localVObj.ApplyRB(
-                rbObj.Position,
-                rbObj.Rotation,
-                rbObj.LVelocity,
-                rbObj.AVelocity
-            );
+            if (interpolate)
+            {
+                // id
+            }
+            else
+            {
+                // Just set the position and orientation directly
+                localVObj.ApplyRB(
+                    rbObj.Position,
+                    rbObj.Rotation,
+                    rbObj.LVelocity,
+                    rbObj.AVelocity
+                );
+            }
         }
 
         // Disable "inactive" players
-        foreach (RBObj player in _snapshot.playerStates) {
+        foreach (RBObj player in _snapshot.playerStates)
+        {
             player.SetActive(false);
         }
 
-        foreach (RBObj player in snapshot.playerStates) {
+        foreach (RBObj player in snapshot.playerStates)
+        {
             RBObj localVObj = _snapshot.playerStates[player.Id];
             localVObj.SetActive(true);
-            // Just set the position and orientation directly
-            localVObj.ApplyRB(
-                player.Position,
-                player.Rotation,
-                player.LVelocity,
-                player.AVelocity
-            );
+            if (interpolate)
+            {
+                // idk
+            }
+            else
+            {
+                // Just set the position and orientation directly
+                localVObj.ApplyRB(
+                    player.Position,
+                    player.Rotation,
+                    player.LVelocity,
+                    player.AVelocity
+                );
+            }
         }
 
     }

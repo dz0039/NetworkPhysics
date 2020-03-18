@@ -61,6 +61,9 @@ public class ModeSelection : MonoBehaviour {
                 }
             }
         }
+        if (GUI.Button(new Rect(50, 200, 200, 40),"Impulse Force on Cube")) {
+            Game.Instance.changeImpulseForceOnCube();
+        }
     }
 
 }

@@ -4,9 +4,9 @@ using UnityEngine.Assertions;
 
 /**
     Bit Stream Reader and Writer, data are bit-aligned, all Big-endian
+
+    Game-specific compression in Snapshot
 **/
-// TODO: compress int, quaternion
-// TODO: remove tmp resources
 public class BitStreamReader {
     private int _head;
     private byte[] _data;
@@ -30,6 +30,30 @@ public class BitStreamReader {
 
     public bool ReadBool() {
         return (ReadBits(1) & 1) == 0 ? false : true;
+    }
+
+    public int ReadInt(int bits) {
+        int num = 0;
+        int full_bytes = bits / 8;
+
+        bits %= 8;
+        if (bits > 0) {
+            num |= ReadBits(bits) << full_bytes * 8;
+        }
+
+        for (int i = 0; i < full_bytes; i++) {
+            num |= ReadBits(8) << (full_bytes - 1 - i) * 8;
+        }
+
+        return num;
+    }
+
+    public int ReadInt8() {
+        int num = 0;
+        for (int i = 0; i < 1; i++) {
+            num |= ReadBits(8) << (0 - i) * 8;
+        }
+        return num;
     }
 
     public int ReadInt16() {
@@ -86,7 +110,7 @@ public class BitStreamReader {
         int left_this_byte = Math.Min(8 - readed_this_byte, bitCount);
         int space_this_byte = 8 - left_this_byte - readed_this_byte;
         // 0000(011)[1], readed = 1, left = 3, space=4
-        b |= (byte) (_data[i_this_byte] << space_this_byte >>(space_this_byte + readed_this_byte));
+        b |= (byte) ((byte) (_data[i_this_byte] << space_this_byte) >>(space_this_byte + readed_this_byte));
 
         // next byte
         int left_next_byte = bitCount - left_this_byte;
@@ -131,6 +155,36 @@ public class BitStreamWriter {
 
     public BitStreamWriter WriteBool(bool val) {
         WriteBits(val ? (byte) 1 : (byte) 0, 1);
+        return this;
+    }
+
+    public BitStreamWriter WriteInt(int val, int bits) {
+        Assert.IsTrue((val & ~(0xff << bits)) == val);
+
+        byte b;
+
+        int full_bytes = bits / 8;
+        bits %= 8;
+        if (bits > 0) {
+            b = (byte) (val >> full_bytes * 8);
+            WriteBits(b,bits);
+        }
+        for (int i = 0; i < full_bytes; i++) {
+            b = (byte) (val >>(full_bytes-1 - i) * 8);
+            WriteBits(b, 8);
+        }
+
+
+        return this;
+    }
+
+    public BitStreamWriter WriteInt8(int val) {
+        Assert.IsTrue((val & 0xff) == val);
+
+        for (int i = 0; i < 1; i++) {
+            byte b = (byte) (val >>(0 - i) * 8);
+            WriteBits(b, 8);
+        }
         return this;
     }
 

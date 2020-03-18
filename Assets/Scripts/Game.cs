@@ -28,6 +28,8 @@ public class Game : MonoBehaviour {
 
     private bool _isStarted;
 
+    private bool useImpluseForce;
+
     void Start() {
         if (_instance && _instance != this) {
             Debug.LogError("Singleton Error");
@@ -62,8 +64,14 @@ public class Game : MonoBehaviour {
         if (!_isStarted) return;
         Vector3 ori = _snapshot.playerStates[_mainPlayerId].Position;
         foreach (var rbObj in _snapshot.cubeStates) {
-            rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Impulse);
+            if (useImpluseForce) {
+                rbObj.Rigidbody.AddExplosionForce(0.1f, ori, 3.0f, 0.1f, ForceMode.Impulse);
+            }
         }
+    }
+
+    public void changeImpulseForceOnCube() {
+        useImpluseForce = !useImpluseForce;
     }
 
     void Update() {

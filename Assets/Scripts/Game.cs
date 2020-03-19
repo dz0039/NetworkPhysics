@@ -28,7 +28,7 @@ public class Game : MonoBehaviour {
 
     private bool _isStarted;
 
-    private bool useImpluseForce;
+    private bool useImpluseForce;  // whether add impluse invisible force to the cube
 
     void Start() {
         if (_instance && _instance != this) {
@@ -74,6 +74,8 @@ public class Game : MonoBehaviour {
         useImpluseForce = !useImpluseForce;
     }
 
+    // It will update every cube's position in real time.
+    // If the game is not started, it shouldn't run.
     void Update() {
         if (!_isStarted) return;
         for (int i = 0; i < _snapshot.CubeCount; i++) {
@@ -101,13 +103,13 @@ public class Game : MonoBehaviour {
         for (float i = -bound; i < bound; i += space) {
             for (float j = -bound; j < bound; j += space) {
                 cubeStates[--n] = new RBObj {
-                Id = n,
-                Position = new Vector3(i, 3.0f, j),
-                Rotation = Quaternion.identity,
-                LVelocity = Vector3.zero,
-                AVelocity = Vector3.zero,
-                Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
-                Priority = 1
+                    Id = n,
+                    Position = new Vector3(i, 3.0f, j),
+                    Rotation = Quaternion.identity,
+                    LVelocity = Vector3.zero,
+                    AVelocity = Vector3.zero,
+                    Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
+                    Priority = 1
                 };
                 renderTransforms[n] = Instantiate(prefabRender, new Vector3(i, 1.0f, j), Quaternion.identity).transform;
             }

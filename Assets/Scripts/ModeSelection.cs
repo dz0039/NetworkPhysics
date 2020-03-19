@@ -2,14 +2,17 @@
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
-
+// This class provides the GUI for the game
 public class ModeSelection : MonoBehaviour {
     bool isStarted = false;
     string addrstr = "addr";
     string portstr_h = "12345";
     string portstr_c = "12345";
     private int playerId = 0;
+
+    // There are six players
     private string[] toolbarStrings = {"p1", "p2", "p3", "p4", "p5", "p6"};
+
     
     IPEndPoint localIP;
     Host host = null;
@@ -24,6 +27,9 @@ public class ModeSelection : MonoBehaviour {
         }
     }
 
+    // Make several GUI options for the user to select as host or client
+    // Also, there are more options such as changing force type
+    // and close connections.
     void OnGUI() {
         if (!isStarted) {
             GUI.BeginGroup(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 100, 400, 200));

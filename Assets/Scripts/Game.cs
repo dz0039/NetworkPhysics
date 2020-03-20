@@ -105,7 +105,7 @@ public class Game : MonoBehaviour {
         renderTransforms = new Transform[n];
         for (float i = -bound; i < bound; i += space) {
             for (float j = -bound; j < bound; j += space) {
-                cubeStates[--n] = new RBObj {
+                RBObj rBObj = new RBObj {
                     Id = n,
                     Position = new Vector3(i, 3.0f, j),
                     Rotation = Quaternion.identity,
@@ -114,6 +114,9 @@ public class Game : MonoBehaviour {
                     Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
                     Priority = 1
                 };
+                RBObjHolder holder = rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder;
+                holder.rBObj = rBObj;
+                cubeStates[--n] = rBObj;
                 renderTransforms[n] = Instantiate(prefabRender, new Vector3(i, 1.0f, j), Quaternion.identity).transform;
             }
         }
@@ -127,7 +130,7 @@ public class Game : MonoBehaviour {
         var res = new RBObj[n];
         for (int i = 0; i < n; i++) {
             Vector3 v3 = new Vector3(0.4f * Mathf.Sin(Mathf.PI * (float) i / (float) (n - 1)), 3, 0.4f * Mathf.Cos(Mathf.PI * (float) i / (float) (n - 1)));
-            res[i] = new RBObj {
+            RBObj rBObj = new RBObj {
                 Id = i,
                     Position = v3,
                     Rotation = Quaternion.identity,
@@ -136,6 +139,10 @@ public class Game : MonoBehaviour {
                     Go = Instantiate(prefab, v3, Quaternion.identity),
                     Priority = 1
             }.SetActive(false);
+            RBObjHolder holder = rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder;
+            holder.rBObj = rBObj;
+
+            res[i] = rBObj;
         }
         return res;
     }

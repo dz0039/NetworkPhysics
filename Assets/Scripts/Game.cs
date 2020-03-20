@@ -29,6 +29,7 @@ public class Game : MonoBehaviour {
     private bool _isStarted;
 
     private bool useImpluseForce;  // whether add impluse invisible force to the cube
+    private bool isServer;
 
     void Start() {
         if (_instance && _instance != this) {
@@ -40,9 +41,10 @@ public class Game : MonoBehaviour {
         _instance = this;
         DontDestroyOnLoad(gameObject);
         _isStarted = false;
+        isServer = false;
     }
 
-    public void InitGame(int player) {
+    public void InitGame(int player, bool isServer) {
         _snapshot = new Snapshot();
         // init scene
         InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out _renderCubeTrans);
@@ -58,6 +60,7 @@ public class Game : MonoBehaviour {
         UpdateSnapshot();
 
         _isStarted = true;
+        this.isServer = isServer;
     }
 
     void FixedUpdate() {
@@ -164,16 +167,25 @@ public class Game : MonoBehaviour {
             }
         }
 
-        // Disable "inactive" players
         foreach (RBObj player in _snapshot.playerStates)
         {
-            player.SetActive(false);
+            player.SetActive(true);
+        }
+
+            // Disable "inactive" players
+            foreach (RBObj player in _snapshot.playerStates)
+        {
+            // player.SetActive(false);
         }
 
         foreach (RBObj player in snapshot.playerStates)
         {
+            if (player.Id == _snapshot.playerStates[_mainPlayerId].Id) {
+                // Do not let anyone else control this player
+                continue;
+            }
             RBObj localVObj = _snapshot.playerStates[player.Id];
-            localVObj.SetActive(true);
+            // localVObj.SetActive(true);
             if (interpolate)
             {
                 // idk
@@ -190,5 +202,9 @@ public class Game : MonoBehaviour {
             }
         }
 
+    }
+
+    public int getMainPlayerID() {
+        return _mainPlayerId;
     }
 }

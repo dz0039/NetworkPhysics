@@ -50,6 +50,7 @@ public class Host : MonoBehaviour {
         else
             return;
 
+        Game.Instance.UpdateSnapshot();
         // read data from client end points
         foreach (var entry in ep2msg) {
             EndPoint ep = entry.Key;
@@ -62,10 +63,12 @@ public class Host : MonoBehaviour {
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
             Snapshot recieved = Snapshot.FromBytes(currentSnapshotInBytes);
-            Game.Instance.ApplySnapshot(recieved, true);
+            Debug.Log("player len of " + recieved.playerStates.Length);
+            // Apply what the client sent us
+            Game.Instance.ApplySnapshot(recieved, false);
         }
 
-        Game.Instance.UpdateSnapshot();
+        
 
         Snapshot updatedSnapshot = Game.Instance.Snapshot;
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);

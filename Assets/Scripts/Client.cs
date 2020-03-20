@@ -44,8 +44,19 @@ public class Client : MonoBehaviour {
             return;
 
 
+        Game.Instance.UpdateSnapshot();
+        List<RBObj> priorityPlayers = new List<RBObj>();
+        List<RBObj> priorityCubes = new List<RBObj>();
+
+
+        foreach (RBObj player in Game.Instance.Snapshot.playerStates) {
+            // priorityPlayers.Add(player);
+        }
+
+        priorityPlayers.Add(Game.Instance.Snapshot.playerStates[Game.Instance.getMainPlayerID()]);
+
         // Send snapshot to sever
-        Snapshot clientSnapshot = Game.Instance.Snapshot;
+        Snapshot clientSnapshot = new Snapshot(priorityPlayers, priorityCubes); // Game.Instance.Snapshot;
         byte[] asBytes = Snapshot.ToBytes(clientSnapshot);
         socket.ClientSend(asBytes);
 

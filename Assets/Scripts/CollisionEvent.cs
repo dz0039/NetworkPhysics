@@ -10,7 +10,7 @@ public class CollisionEvent : MonoBehaviour
         
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.name.Equals("Cube_Physics(Clone)")) {
             // Debug.Log(collision.gameObject.name); 

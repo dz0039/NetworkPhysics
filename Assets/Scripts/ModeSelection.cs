@@ -59,6 +59,9 @@ public class ModeSelection : MonoBehaviour {
         } else {
             if (host) {
                 GUI.Box(new Rect(0, 0, 200, 40), "[Host] " + host.HostIP);
+                if (GUI.Button(new Rect(50, 100, 200, 40),"Impulse Force on Cube")) {
+                    Game.Instance.changeImpulseForceOnCube();
+                }
             } else {
                 GUI.Box(new Rect(0, 0, 200, 40), "[Client] " + client.HostIP);
                 if (GUI.Button(new Rect(200, 200, 130, 40), "Clost Connection")) {
@@ -66,9 +69,6 @@ public class ModeSelection : MonoBehaviour {
                     isStarted = false;
                 }
             }
-        }
-        if (GUI.Button(new Rect(50, 200, 200, 40),"Impulse Force on Cube")) {
-            Game.Instance.changeImpulseForceOnCube();
         }
     }
 

@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class CollisionEvent : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+
+    void OnCollisionEnter(Collision collision) {
+        OnCollisionStay(collision);
     }
 
     void OnCollisionStay(Collision collision)

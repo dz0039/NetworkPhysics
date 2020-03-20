@@ -105,7 +105,7 @@ public class Game : MonoBehaviour {
         renderTransforms = new Transform[n];
         for (float i = -bound; i < bound; i += space) {
             for (float j = -bound; j < bound; j += space) {
-                RBObj rBObj = new RBObj {
+                cubeStates[--n] = new RBObj {
                     Id = n,
                     Position = new Vector3(i, 3.0f, j),
                     Rotation = Quaternion.identity,
@@ -114,11 +114,6 @@ public class Game : MonoBehaviour {
                     Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
                     Priority = 1
                 };
-
-                RBObjHolder holder = rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder;
-                holder.rBObj = rBObj;
-                cubeStates[--n] = rBObj;
-
                 renderTransforms[n] = Instantiate(prefabRender, new Vector3(i, 1.0f, j), Quaternion.identity).transform;
             }
         }

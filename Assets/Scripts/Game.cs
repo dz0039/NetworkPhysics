@@ -31,6 +31,7 @@ public class Game : MonoBehaviour {
     private bool useImpluseForce;  // whether add impluse invisible force to the cube
     private bool isServer;
 
+
     void Start() {
         if (_instance && _instance != this) {
             Debug.LogError("Singleton Error");
@@ -105,6 +106,7 @@ public class Game : MonoBehaviour {
         renderTransforms = new Transform[n];
         for (float i = -bound; i < bound; i += space) {
             for (float j = -bound; j < bound; j += space) {
+                n--;
                 RBObj rBObj = new RBObj {
                     Id = n,
                     Position = new Vector3(i, 3.0f, j),
@@ -114,9 +116,11 @@ public class Game : MonoBehaviour {
                     Go = Instantiate(prefabPhy, new Vector3(i, 1.0f, j), Quaternion.identity),
                     Priority = 1
                 };
-                RBObjHolder holder = rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder;
-                holder.rBObj = rBObj;
-                cubeStates[--n] = rBObj;
+
+                (rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder).rBObj = rBObj;
+                cubeStates[n] = rBObj;
+
+
                 renderTransforms[n] = Instantiate(prefabRender, new Vector3(i, 1.0f, j), Quaternion.identity).transform;
             }
         }
@@ -139,8 +143,8 @@ public class Game : MonoBehaviour {
                     Go = Instantiate(prefab, v3, Quaternion.identity),
                     Priority = 1
             }.SetActive(false);
-            RBObjHolder holder = rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder;
-            holder.rBObj = rBObj;
+
+            (rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder).rBObj = rBObj;
 
             res[i] = rBObj;
         }

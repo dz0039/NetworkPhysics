@@ -10,6 +10,6 @@ public class RBObjHolder : MonoBehaviour
     void Update()
     {
         // Increment priority
-        rBObj.Priority++;
+        // rBObj.Priority++;
     }
 }

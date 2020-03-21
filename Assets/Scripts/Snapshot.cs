@@ -69,7 +69,10 @@ public class Snapshot {
         List<RBObj> priority = new List<RBObj>();
 
         foreach (RBObj rb in cubeStates) {
-            priority.Add(rb);
+            if (rb.Owner == Game.Instance.getMainPlayerID() || Game.Instance.isGameServer())
+            {
+                priority.Add(rb);
+            }
         }
 
         priority.Sort((x, y) => (x.Priority - y.Priority));

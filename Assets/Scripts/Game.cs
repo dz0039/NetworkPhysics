@@ -189,7 +189,8 @@ public class Game : MonoBehaviour {
         foreach (RBObj rbObj in snapshot.cubeStates)
         {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
-            if (rbObj.Priority > localVObj.Priority) { 
+            if (!isServer)
+            {
                 // Just set the position and orientation directly
                 localVObj.ApplyRB(
                     rbObj.Position,
@@ -198,7 +199,21 @@ public class Game : MonoBehaviour {
                     rbObj.AVelocity
                 );
                 rbObj.Priority = 0; // localVObj.Priority;
-                rbObj.Owner = localVObj.Owner;
+                // rbObj.Owner = localVObj.Owner;
+            }
+            else {
+                if (rbObj.Priority > localVObj.Priority)
+                {
+                    // Just set the position and orientation directly
+                    localVObj.ApplyRB(
+                        rbObj.Position,
+                        rbObj.Rotation,
+                        rbObj.LVelocity,
+                        rbObj.AVelocity
+                    );
+                    rbObj.Priority = rbObj.Priority; // localVObj.Priority;
+                    // rbObj.Owner = localVObj.Owner;
+                }
             }
         }
 

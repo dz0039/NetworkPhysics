@@ -24,7 +24,7 @@ public class CollisionEvent : MonoBehaviour
             // Debug.Log(rBObj.Priority);
             
             // unused
-            // rBObj.Owner = gameObject.GetComponent<RBObjHolder>().rBObj.Id;
+            rBObj.Owner = gameObject.GetComponent<RBObjHolder>().rBObj.Id;
         }
     }
 }

@@ -63,7 +63,7 @@ public class ModeSelection : MonoBehaviour {
                 }
             } else {
                 GUI.Box(new Rect(0, 0, 200, 40), "[Client] " + client.HostIP);
-                if (GUI.Button(new Rect(200, 200, 130, 40), "Clost Connection")) {
+                if (GUI.Button(new Rect(200, 200, 130, 40), "Close Connection")) {
                     client.Close();
                     isStarted = false;
                 }

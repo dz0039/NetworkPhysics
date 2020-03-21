@@ -5,15 +5,25 @@ using UnityEngine;
 public class CollisionEvent : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name.Equals("Cube_Physics(Clone)")) {
-            Debug.Log(collision.gameObject.name); // Give the cube higher priority.
+        OnCollisionStay(collision);
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        // Only the main player can add priority to a cube
+        if (gameObject.GetComponent<RBObjHolder>().rBObj.Id == Game.Instance.getMainPlayerID())
+        {
+            // Only add priority to cubes
+            if (collision.gameObject.name.Equals("Cube_Physics(Clone)"))
+            {
+                // Give the cube higher priority.
+                RBObj rBObj = collision.gameObject.GetComponent<RBObjHolder>().rBObj;
+                Debug.Log(collision.gameObject.name);
+                rBObj.Priority += 100;
+                Debug.Log(rBObj.Priority);
+            }
         }
     }
 }

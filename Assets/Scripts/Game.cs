@@ -117,7 +117,7 @@ public class Game : MonoBehaviour {
                     Priority = 1
                 };
 
-                (rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder).rBObj = rBObj;
+                rBObj.Go.GetComponent<RBObjHolder>().rBObj = rBObj;
                 cubeStates[n] = rBObj;
 
 
@@ -144,7 +144,7 @@ public class Game : MonoBehaviour {
                     Priority = 1
             }.SetActive(false);
 
-            (rBObj.Go.GetComponent(typeof(RBObjHolder)) as RBObjHolder).rBObj = rBObj;
+            rBObj.Go.GetComponent<RBObjHolder>().rBObj = rBObj;
 
             res[i] = rBObj;
         }

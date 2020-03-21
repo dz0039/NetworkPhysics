@@ -146,6 +146,7 @@ public class Snapshot {
         writer.WriteQuaternionRot(rbobj.Rotation);
         writer.WriteVector3(rbobj.LVelocity);
         writer.WriteVector3(rbobj.AVelocity);
+        writer.WriteInt32(rbobj.Priority);
     }
 
     private static RBObj ReadRBObj(BitStreamReader reader)
@@ -156,6 +157,7 @@ public class Snapshot {
         rbobj.Rotation = reader.ReadQuaternionRot();
         rbobj.LVelocity = reader.ReadVector3();
         rbobj.AVelocity = reader.ReadVector3();
+        rbobj.Priority = reader.ReadInt32();
         return rbobj;
     }
 }

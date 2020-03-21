@@ -13,6 +13,7 @@ using UnityEngine.Assertions;
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
     public const float visualSmoothCoef = .15f; // Value between 0 and 1, determines how much we smooth the render transform.
+    public const float mainPlayerSmoothCoef = .5f;
 
     public GameObject cubeRenderPrefab;
     public GameObject cubePhysicPrefab;
@@ -94,12 +95,23 @@ public class Game : MonoBehaviour {
                 visualSmoothCoef);
         }
         for (int i = 0; i < 6; i++) {
-            _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
-                _snapshot.playerStates[i].Go.transform.position,
-                visualSmoothCoef);
-            _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
-                _snapshot.playerStates[i].Go.transform.rotation,
-                visualSmoothCoef);
+            if (i != _mainPlayerId)
+            {
+                _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
+                    _snapshot.playerStates[i].Go.transform.position,
+                    visualSmoothCoef);
+                _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
+                    _snapshot.playerStates[i].Go.transform.rotation,
+                    visualSmoothCoef);
+            }
+            else {
+                _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
+                    _snapshot.playerStates[i].Go.transform.position,
+                    mainPlayerSmoothCoef);
+                _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
+                    _snapshot.playerStates[i].Go.transform.rotation,
+                    mainPlayerSmoothCoef);
+            }
         }
     }
 

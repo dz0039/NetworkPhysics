@@ -65,7 +65,7 @@ public class Host : MonoBehaviour {
             Snapshot recieved = Snapshot.FromBytes(currentSnapshotInBytes);
             Debug.Log("player len of " + recieved.playerStates.Length);
             // Apply what the client sent us
-            Game.Instance.ApplySnapshot(recieved, false);
+            Game.Instance.ApplySnapshot(recieved);
         }
 
         

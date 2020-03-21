@@ -64,18 +64,24 @@ public class Host : MonoBehaviour {
 
             Snapshot recieved = Snapshot.FromBytes(currentSnapshotInBytes);
             Debug.Log("player len of " + recieved.playerStates.Length);
+            Debug.Log("cube len of " + recieved.cubeStates.Length);
             // Apply what the client sent us
             Game.Instance.ApplySnapshot(recieved);
         }
 
-        
+        List<RBObj> priorityPlayers = new List<RBObj>();
+        priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);
+        List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(50);
 
-        Snapshot updatedSnapshot = Game.Instance.Snapshot;
+        Snapshot updatedSnapshot = new Snapshot(priorityPlayers, priorityCubes); // Game.Instance.Snapshot;
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);
         // serverSend synced data in bytes to every endpoint
 
         foreach (var entry in ep2msg) {
             serverSocket.ServerSend(updatedSnapshotInBytes, entry.Key);
         }
+
+        // Now clear the priority value of the cubes we just sent
+        Game.Instance.Snapshot.clearPriority(priorityCubes);
     }
 }

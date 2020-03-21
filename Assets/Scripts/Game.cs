@@ -162,13 +162,22 @@ public class Game : MonoBehaviour {
         foreach (RBObj rbObj in snapshot.cubeStates)
         {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
-            // Just set the position and orientation directly
-            localVObj.ApplyRB(
-                rbObj.Position,
-                rbObj.Rotation,
-                rbObj.LVelocity,
-                rbObj.AVelocity
-            );
+            if (rbObj.Priority > localVObj.Priority) { 
+                // Just set the position and orientation directly
+                localVObj.ApplyRB(
+                    rbObj.Position,
+                    rbObj.Rotation,
+                    rbObj.LVelocity,
+                    rbObj.AVelocity
+                );
+                if (isServer)
+                {
+                    rbObj.Priority = localVObj.Priority;
+                }
+                else {
+                    rbObj.Priority = 0;
+                }
+            }
         }
 
         foreach (RBObj player in _snapshot.playerStates)

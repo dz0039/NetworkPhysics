@@ -63,6 +63,26 @@ public class Snapshot {
         playerStates = playersList.ToArray();
     }
 
+    public List<RBObj> getPriorityCubes(int maxCubes)
+    {
+        List<RBObj> priority = new List<RBObj>();
+        priority.AddRange(cubeStates);
+        priority.Sort((x, y) => (x.Priority - y.Priority));
+
+        if (priority.Count > maxCubes)
+        {
+            priority.RemoveRange(maxCubes, priority.Count - maxCubes);
+        }
+
+        return priority;
+    }
+
+    public void clearPriority(List<RBObj> toClear) {
+        foreach (RBObj rBObj in toClear) {
+            rBObj.Priority = 0;
+        }
+    }
+
     public Snapshot Clone() {
         Snapshot snap = new Snapshot();
         snap.cubeStates = new RBObj[CubeCount];

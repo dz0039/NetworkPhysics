@@ -20,9 +20,9 @@ public class CollisionEvent : MonoBehaviour
             {
                 // Give the cube higher priority.
                 RBObj rBObj = collision.gameObject.GetComponent<RBObjHolder>().rBObj;
-                Debug.Log(collision.gameObject.name);
+                // Debug.Log(collision.gameObject.name);
                 rBObj.Priority += 100;
-                Debug.Log(rBObj.Priority);
+                // Debug.Log(rBObj.Priority);
             }
         }
     }

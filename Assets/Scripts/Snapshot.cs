@@ -18,6 +18,8 @@ public class RBObj {
     private Rigidbody _rb = null;
     public Rigidbody Rigidbody { get => _rb; }
 
+    public bool IsActive {get => Go.activeInHierarchy;}
+
     public RBObj SetActive(bool val) {
         // TODO: RB errors?
         Go.SetActive(val);

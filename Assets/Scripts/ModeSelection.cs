@@ -13,7 +13,6 @@ public class ModeSelection : MonoBehaviour {
     // There are six players
     private string[] toolbarStrings = {"p1", "p2", "p3", "p4", "p5", "p6"};
 
-    
     IPEndPoint localIP;
     Host host = null;
     Client client = null;

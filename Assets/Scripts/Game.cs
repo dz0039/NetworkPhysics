@@ -94,6 +94,7 @@ public class Game : MonoBehaviour {
                 visualSmoothCoef);
         }
         for (int i = 0; i < 6; i++) {
+            if (!_snapshot.playerStates[i].IsActive) continue;
             _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
                 _snapshot.playerStates[i].Go.transform.position,
                 visualSmoothCoef);
@@ -199,12 +200,6 @@ public class Game : MonoBehaviour {
         {
             player.SetActive(true);
             _renderPlayer[player.Id].SetActive(true);
-        }
-
-            // Disable "inactive" players
-            foreach (RBObj player in _snapshot.playerStates)
-        {
-            // player.SetActive(false);
         }
 
         foreach (RBObj player in snapshot.playerStates)

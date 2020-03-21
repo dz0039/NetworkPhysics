@@ -14,6 +14,7 @@ public class RBObj {
     public Vector3 AVelocity { get; set; } // angular velocity
     public GameObject Go { get; set; }
     public int Priority { get; set; } // only associate with main player
+    public int Owner { get; set; }
 
     private Rigidbody _rb = null;
     public Rigidbody Rigidbody { get => _rb; }
@@ -66,7 +67,17 @@ public class Snapshot {
     public List<RBObj> getPriorityCubes(int maxCubes)
     {
         List<RBObj> priority = new List<RBObj>();
-        priority.AddRange(cubeStates);
+
+        foreach (RBObj rb in cubeStates) {
+            if (rb.Owner == Game.Instance.getMainPlayerID())
+            {
+                priority.Add(rb);
+            }
+            else if (rb.Owner == 0 && Game.Instance.isGameServer()) {
+                priority.Add(rb);
+            }
+        }
+
         priority.Sort((x, y) => (x.Priority - y.Priority));
 
         if (priority.Count > maxCubes)

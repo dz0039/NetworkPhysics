@@ -22,6 +22,7 @@ public class CollisionEvent : MonoBehaviour
                 RBObj rBObj = collision.gameObject.GetComponent<RBObjHolder>().rBObj;
                 // Debug.Log(collision.gameObject.name);
                 rBObj.Priority += 100;
+                rBObj.Owner = Game.Instance.getMainPlayerID();
                 // Debug.Log(rBObj.Priority);
             }
         }

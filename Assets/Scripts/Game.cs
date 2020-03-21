@@ -197,13 +197,8 @@ public class Game : MonoBehaviour {
                     rbObj.LVelocity,
                     rbObj.AVelocity
                 );
-                if (isServer)
-                {
-                    rbObj.Priority = localVObj.Priority;
-                }
-                else {
-                    rbObj.Priority = 0;
-                }
+                rbObj.Priority = localVObj.Priority;
+                rbObj.Owner = localVObj.Owner;
             }
         }
 
@@ -240,5 +235,9 @@ public class Game : MonoBehaviour {
 
     public int getMainPlayerID() {
         return _mainPlayerId;
+    }
+
+    public bool isGameServer() {
+        return isServer;
     }
 }

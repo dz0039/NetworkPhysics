@@ -12,19 +12,19 @@ public class CollisionEvent : MonoBehaviour
 
     void OnCollisionStay(Collision collision)
     {
-        // Only the main player can add priority to a cube
-        if (gameObject.GetComponent<RBObjHolder>().rBObj.Id == Game.Instance.getMainPlayerID())
+        // Only add priority to cubes
+        if (collision.gameObject.name.Equals("Cube_Physics(Clone)"))
         {
-            // Only add priority to cubes
-            if (collision.gameObject.name.Equals("Cube_Physics(Clone)"))
-            {
-                // Give the cube higher priority.
-                RBObj rBObj = collision.gameObject.GetComponent<RBObjHolder>().rBObj;
-                // Debug.Log(collision.gameObject.name);
-                rBObj.Priority += 100;
-                rBObj.Owner = Game.Instance.getMainPlayerID();
-                // Debug.Log(rBObj.Priority);
-            }
+            RBObj rBObj = collision.gameObject.GetComponent<RBObjHolder>().rBObj;
+            // Give the cube higher priority.
+            
+            // Debug.Log(collision.gameObject.name);
+            rBObj.Priority += 100;
+           
+            // Debug.Log(rBObj.Priority);
+            
+            // unused
+            // rBObj.Owner = gameObject.GetComponent<RBObjHolder>().rBObj.Id;
         }
     }
 }

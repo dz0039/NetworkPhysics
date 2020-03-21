@@ -197,7 +197,7 @@ public class Game : MonoBehaviour {
                     rbObj.LVelocity,
                     rbObj.AVelocity
                 );
-                rbObj.Priority = localVObj.Priority;
+                rbObj.Priority = 0; // localVObj.Priority;
                 rbObj.Owner = localVObj.Owner;
             }
         }

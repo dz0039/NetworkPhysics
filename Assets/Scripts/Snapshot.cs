@@ -164,38 +164,53 @@ public class Snapshot {
 
     /*
         id : int 8
-        pos : x,y in (-16,16)m (5 b); z in [-1,3]m(2 b); 512(9b) positions per meter
+        pos : x,y in (-16,16)m (5 b); z in [-8,8]m(4 b); 512(9b) positions per meter
         rot : 3 three
         lv : -1024 1024, int6: 64 meters, int6: 64 per meter
         av : same
         priority : int32
     */
-    private readonly static Vector3 POS_OFFSET_W = new Vector3(16,1,16);
-    private readonly static Vector3 POS_OFFSET_R = new Vector3(16,3,16);
+    private readonly static Vector3 POS_OFFSET_W = new Vector3(16,8,16);
+    private readonly static Vector3 POS_OFFSET_R = new Vector3(16,8,16);
     private readonly static Vector3 VEL_OFFSET = new Vector3(16,16,16);
     private static void WriteRBObj(BitStreamWriter writer, RBObj rbobj) {
-        writer.WriteInt8(rbobj.Id);
-        WriteCompressedVector3(writer, rbobj.Position + POS_OFFSET_W,
-             5,9,2,9,5,9);
+        writer.WriteInt16(rbobj.Id);
+        writer.WriteVector3(rbobj.Position);
         writer.WriteQuaternionRot(rbobj.Rotation);
-        WriteCompressedVector3(writer, rbobj.LVelocity + VEL_OFFSET,
-             5,6,5,6,5,6);
-        WriteCompressedVector3(writer, rbobj.AVelocity + VEL_OFFSET,
-             5,6,5,6,5,6);
+        writer.WriteVector3(rbobj.LVelocity);
+        writer.WriteVector3(rbobj.AVelocity);
         writer.WriteInt32(rbobj.Priority);
+        // writer.WriteInt8(rbobj.Id);
+        // WriteCompressedVector3(writer, rbobj.Position + POS_OFFSET_W,
+        //      5,9,4,9,5,9);
+        // writer.WriteQuaternionRot(rbobj.Rotation);
+        // WriteCompressedVector3(writer, rbobj.LVelocity + VEL_OFFSET,
+        //      5,6,5,6,5,6);
+        // WriteCompressedVector3(writer, rbobj.AVelocity + VEL_OFFSET,
+        //      5,6,5,6,5,6);
+        // writer.WriteInt32(rbobj.Priority);
+
     }
 
     private static RBObj ReadRBObj(BitStreamReader reader)
     {
+        // RBObj rbobj = new RBObj();
+        // rbobj.Id = reader.ReadInt8();
+        // rbobj.Position = ReadCompressedVector3(reader,
+        //      5,9,4,9,5,9)-POS_OFFSET_R;
+        // rbobj.Rotation = reader.ReadQuaternionRot();
+        // rbobj.LVelocity = ReadCompressedVector3(reader,
+        //      5,6,5,6,5,6)-VEL_OFFSET;
+        // rbobj.AVelocity = ReadCompressedVector3(reader,
+        //      5,6,5,6,5,6)-VEL_OFFSET;
+        // rbobj.Priority = reader.ReadInt32();
+        // return rbobj;
         RBObj rbobj = new RBObj();
-        rbobj.Id = reader.ReadInt8();
-        rbobj.Position = ReadCompressedVector3(reader,
-             5,9,2,9,5,9)-POS_OFFSET_R;
+        rbobj.Id = reader.ReadInt16();
+        rbobj.Position = reader.ReadVector3();
         rbobj.Rotation = reader.ReadQuaternionRot();
-        rbobj.LVelocity = ReadCompressedVector3(reader,
-             5,6,5,6,5,6)-VEL_OFFSET;
-        rbobj.AVelocity = ReadCompressedVector3(reader,
-             5,6,5,6,5,6)-VEL_OFFSET;
+        rbobj.LVelocity = reader.ReadVector3();
+        rbobj.AVelocity = reader.ReadVector3();
         rbobj.Priority = reader.ReadInt32();
         return rbobj;
     }

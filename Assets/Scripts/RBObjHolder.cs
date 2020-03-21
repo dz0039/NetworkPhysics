@@ -6,8 +6,6 @@ public class RBObjHolder : MonoBehaviour
 {
     public RBObj rBObj;
 
-    static float max_vel = 0.0f;
-
     // Update is called once per frame
     void Update()
     {

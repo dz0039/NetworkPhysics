@@ -95,7 +95,6 @@ public class Game : MonoBehaviour {
                 visualSmoothCoef);
         }
         for (int i = 0; i < 6; i++) {
-            if (!_snapshot.playerStates[i].IsActive) continue;
             if (i != _mainPlayerId)
             {
                 _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
@@ -104,7 +103,8 @@ public class Game : MonoBehaviour {
                 _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
                     _snapshot.playerStates[i].Go.transform.rotation,
                     visualSmoothCoef);
-            } else {
+            }
+            else {
                 _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
                     _snapshot.playerStates[i].Go.transform.position,
                     mainPlayerSmoothCoef);
@@ -181,6 +181,7 @@ public class Game : MonoBehaviour {
     public Snapshot Snapshot { get => _snapshot; }
     public void UpdateSnapshot() => _snapshot.UpdateFromRigid();
 
+
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine
     public void ApplySnapshot(Snapshot snapshot)
@@ -216,15 +217,20 @@ public class Game : MonoBehaviour {
             }
         }
 
-        foreach (RBObj player in snapshot.playerStates)
+        foreach (RBObj player in _snapshot.playerStates)
         {
             player.SetActive(true);
             _renderPlayer[player.Id].SetActive(true);
         }
 
+            // Disable "inactive" players
+            foreach (RBObj player in _snapshot.playerStates)
+        {
+            // player.SetActive(false);
+        }
+
         foreach (RBObj player in snapshot.playerStates)
         {
-            
             if (player.Id == _snapshot.playerStates[_mainPlayerId].Id) {
                 // Do not let anyone else control this player
                 continue;

@@ -81,7 +81,7 @@ public class Host : MonoBehaviour {
             }
         }
         // priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);
-        List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(50);
+        List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(120);
 
         // Now clear the priority value of the cubes we just sent
         // Game.Instance.Snapshot.clearPriority(priorityCubes);

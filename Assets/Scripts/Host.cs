@@ -52,6 +52,7 @@ public class Host : MonoBehaviour {
             return;
 
         Game.Instance.UpdateSnapshot();
+
         // read data from client end points
         foreach (var entry in ep2msg) {
             EndPoint ep = entry.Key;
@@ -69,6 +70,8 @@ public class Host : MonoBehaviour {
             // Apply what the client sent us
             Game.Instance.ApplySnapshot(recieved);
         }
+
+        Game.Instance.UpdateSnapshot();
 
         List<RBObj> priorityPlayers = new List<RBObj>();
         priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);

@@ -113,6 +113,11 @@ public class Game : MonoBehaviour {
                     mainPlayerSmoothCoef);
             }
         }
+        foreach (RBObj rb in Snapshot.cubeStates) {
+            if (rb.LVelocity.magnitude > .02) {
+                rb.Priority += 50;
+            }
+        }
     }
 
     // Initialize all the cubes on the plane with distance with each other

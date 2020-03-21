@@ -34,6 +34,7 @@ public class Game : MonoBehaviour {
     private bool useImpluseForce;  // whether add impluse invisible force to the cube
     private bool isServer;
 
+    private static List<int> _activePlayers = new List<int>();
 
     void Start() {
         if (_instance && _instance != this) {
@@ -61,7 +62,7 @@ public class Game : MonoBehaviour {
         _snapshot.playerStates[_mainPlayerId].Go.AddComponent<PlayerController>();
         _snapshot.playerStates[_mainPlayerId].SetActive(true);
         _renderPlayer[_mainPlayerId].SetActive(true);
-
+        _activePlayers.Add(_mainPlayerId);
         UpdateSnapshot();
 
         _isStarted = true;
@@ -95,6 +96,7 @@ public class Game : MonoBehaviour {
                 visualSmoothCoef);
         }
         for (int i = 0; i < 6; i++) {
+            if (!_snapshot.playerStates[i].IsActive) continue;
             if (i != _mainPlayerId)
             {
                 _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
@@ -157,7 +159,7 @@ public class Game : MonoBehaviour {
         var res = new RBObj[n];
         renderTransforms = new GameObject[6];
         for (int i = 0; i < n; i++) {
-            Vector3 v3 = new Vector3(0.4f * Mathf.Sin(Mathf.PI * (float) i / (float) (n - 1)), 3, 0.4f * Mathf.Cos(Mathf.PI * (float) i / (float) (n - 1)));
+            Vector3 v3 = new Vector3(8f * Mathf.Sin(Mathf.PI * (float) i / (float) (n - 1)), 3, 4f * Mathf.Cos(Mathf.PI * (float) i / (float) (n - 1)));
             RBObj rBObj = new RBObj {
                 Id = i,
                     Position = v3,
@@ -217,17 +219,6 @@ public class Game : MonoBehaviour {
             }
         }
 
-        foreach (RBObj player in _snapshot.playerStates)
-        {
-            player.SetActive(true);
-            _renderPlayer[player.Id].SetActive(true);
-        }
-
-            // Disable "inactive" players
-            foreach (RBObj player in _snapshot.playerStates)
-        {
-            // player.SetActive(false);
-        }
 
         foreach (RBObj player in snapshot.playerStates)
         {
@@ -236,8 +227,13 @@ public class Game : MonoBehaviour {
                 continue;
             }
             RBObj localVObj = _snapshot.playerStates[player.Id];
-            // localVObj.SetActive(true);
-                // Just set the position and orientation directly
+            if (!_activePlayers.Contains(player.Id)) {
+                Debug.Log("New Player Joint : " + player.Id);
+                _activePlayers.Add(player.Id);
+                localVObj.SetActive(true);
+                _renderPlayer[player.Id].SetActive(true);
+            }
+            // Just set the position and orientation directly
             localVObj.ApplyRB(
                 player.Position,
                 player.Rotation,

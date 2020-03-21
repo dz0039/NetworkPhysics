@@ -71,7 +71,13 @@ public class Host : MonoBehaviour {
         }
 
         List<RBObj> priorityPlayers = new List<RBObj>();
-        priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);
+        foreach (RBObj player in Game.Instance.Snapshot.playerStates) {
+            if(player.IsActive) {
+                // Debug.Log(player.Id);
+                priorityPlayers.Add(player);
+            }
+        }
+        // priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);
         List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(50);
 
         // Now clear the priority value of the cubes we just sent
@@ -79,10 +85,10 @@ public class Host : MonoBehaviour {
 
         Snapshot updatedSnapshot = new Snapshot(priorityPlayers, priorityCubes); // Game.Instance.Snapshot;
 
-        if (lastClientSize != ep2msg.Count) {
-            updatedSnapshot = Game.Instance.Snapshot; // New player joined, send the whole thing
-        }
-        lastClientSize = ep2msg.Count;
+        // if (lastClientSize != ep2msg.Count) {
+        //     updatedSnapshot = Game.Instance.Snapshot; // New player joined, send the whole thing
+        // }
+        // lastClientSize = ep2msg.Count;
 
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);
         // serverSend synced data in bytes to every endpoint

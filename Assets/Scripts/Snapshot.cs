@@ -19,7 +19,7 @@ public class RBObj {
     private Rigidbody _rb = null;
     public Rigidbody Rigidbody { get => _rb; }
 
-    public bool IsActive {get => Go.activeInHierarchy;}
+    public bool IsActive {get => Go.activeSelf;}
 
     public RBObj SetActive(bool val) {
         // TODO: RB errors?
@@ -174,45 +174,45 @@ public class Snapshot {
     private readonly static Vector3 POS_OFFSET_R = new Vector3(16,8,16);
     private readonly static Vector3 VEL_OFFSET = new Vector3(16,16,16);
     private static void WriteRBObj(BitStreamWriter writer, RBObj rbobj) {
-        writer.WriteInt16(rbobj.Id);
-        writer.WriteVector3(rbobj.Position);
-        writer.WriteQuaternionRot(rbobj.Rotation);
-        writer.WriteVector3(rbobj.LVelocity);
-        writer.WriteVector3(rbobj.AVelocity);
-        writer.WriteInt32(rbobj.Priority);
-        // writer.WriteInt8(rbobj.Id);
-        // WriteCompressedVector3(writer, rbobj.Position + POS_OFFSET_W,
-        //      5,9,4,9,5,9);
+        // writer.WriteInt16(rbobj.Id);
+        // writer.WriteVector3(rbobj.Position);
         // writer.WriteQuaternionRot(rbobj.Rotation);
-        // WriteCompressedVector3(writer, rbobj.LVelocity + VEL_OFFSET,
-        //      5,6,5,6,5,6);
-        // WriteCompressedVector3(writer, rbobj.AVelocity + VEL_OFFSET,
-        //      5,6,5,6,5,6);
+        // writer.WriteVector3(rbobj.LVelocity);
+        // writer.WriteVector3(rbobj.AVelocity);
         // writer.WriteInt32(rbobj.Priority);
+        writer.WriteInt8(rbobj.Id);
+        WriteCompressedVector3(writer, rbobj.Position + POS_OFFSET_W,
+             5,9,4,9,5,9);
+        writer.WriteQuaternionRot(rbobj.Rotation);
+        WriteCompressedVector3(writer, rbobj.LVelocity + VEL_OFFSET,
+             5,6,5,6,5,6);
+        WriteCompressedVector3(writer, rbobj.AVelocity + VEL_OFFSET,
+             5,6,5,6,5,6);
+        writer.WriteInt32(rbobj.Priority);
 
     }
 
     private static RBObj ReadRBObj(BitStreamReader reader)
     {
-        // RBObj rbobj = new RBObj();
-        // rbobj.Id = reader.ReadInt8();
-        // rbobj.Position = ReadCompressedVector3(reader,
-        //      5,9,4,9,5,9)-POS_OFFSET_R;
-        // rbobj.Rotation = reader.ReadQuaternionRot();
-        // rbobj.LVelocity = ReadCompressedVector3(reader,
-        //      5,6,5,6,5,6)-VEL_OFFSET;
-        // rbobj.AVelocity = ReadCompressedVector3(reader,
-        //      5,6,5,6,5,6)-VEL_OFFSET;
-        // rbobj.Priority = reader.ReadInt32();
-        // return rbobj;
         RBObj rbobj = new RBObj();
-        rbobj.Id = reader.ReadInt16();
-        rbobj.Position = reader.ReadVector3();
+        rbobj.Id = reader.ReadInt8();
+        rbobj.Position = ReadCompressedVector3(reader,
+             5,9,4,9,5,9)-POS_OFFSET_R;
         rbobj.Rotation = reader.ReadQuaternionRot();
-        rbobj.LVelocity = reader.ReadVector3();
-        rbobj.AVelocity = reader.ReadVector3();
+        rbobj.LVelocity = ReadCompressedVector3(reader,
+             5,6,5,6,5,6)-VEL_OFFSET;
+        rbobj.AVelocity = ReadCompressedVector3(reader,
+             5,6,5,6,5,6)-VEL_OFFSET;
         rbobj.Priority = reader.ReadInt32();
         return rbobj;
+        // RBObj rbobj = new RBObj();
+        // rbobj.Id = reader.ReadInt16();
+        // rbobj.Position = reader.ReadVector3();
+        // rbobj.Rotation = reader.ReadQuaternionRot();
+        // rbobj.LVelocity = reader.ReadVector3();
+        // rbobj.AVelocity = reader.ReadVector3();
+        // rbobj.Priority = reader.ReadInt32();
+        // return rbobj;
     }
 
     private static int IntPow(int a, int b)

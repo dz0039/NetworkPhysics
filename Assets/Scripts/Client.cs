@@ -43,10 +43,7 @@ public class Client : MonoBehaviour {
         else
             return;
 
-
         Game.Instance.UpdateSnapshot();
-
-
 
         // Then send modified snapshot back to server
         List<RBObj> priorityPlayers = new List<RBObj>();

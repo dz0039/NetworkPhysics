@@ -12,15 +12,17 @@ using UnityEngine.Assertions;
 */
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
-    public const float visualSmoothCoef = .2f; // Value between 0 and 1, determines how much we smooth the render transform.
+    public const float visualSmoothCoef = .15f; // Value between 0 and 1, determines how much we smooth the render transform.
 
     public GameObject cubeRenderPrefab;
     public GameObject cubePhysicPrefab;
     public GameObject playerPrefab;
+    public GameObject playerRenderPrefab;
 
     private Snapshot _snapshot; // Always contains all cubes
     private int _mainPlayerId; // should always be 0
     private Transform[] _renderCubeTrans; // TODO: bad style
+    private GameObject[] _renderPlayer; // TODO: bad style
 
     private static Game _instance;
     public static Game Instance { get => _instance; }
@@ -50,13 +52,14 @@ public class Game : MonoBehaviour {
         // init scene
         InitSceneCubes(cubePhysicPrefab, cubeRenderPrefab, out _snapshot.cubeStates, out _renderCubeTrans);
         Debug.Log("[Init cubes]" + _snapshot.cubeStates.Length);
-        _snapshot.playerStates = InitPlayers(playerPrefab);
+        _snapshot.playerStates = InitPlayers(playerPrefab, playerRenderPrefab, out _renderPlayer);
         Debug.Log("[Init players]" + _snapshot.playerStates.Length);
         // init main player
         Assert.IsTrue(_snapshot.playerStates.Length > 1);
         _mainPlayerId = player;
         _snapshot.playerStates[_mainPlayerId].Go.AddComponent<PlayerController>();
         _snapshot.playerStates[_mainPlayerId].SetActive(true);
+        _renderPlayer[_mainPlayerId].SetActive(true);
 
         UpdateSnapshot();
 
@@ -88,6 +91,14 @@ public class Game : MonoBehaviour {
                 visualSmoothCoef);
             _renderCubeTrans[i].rotation = Quaternion.Slerp(_renderCubeTrans[i].rotation,
                 _snapshot.cubeStates[i].Go.transform.rotation,
+                visualSmoothCoef);
+        }
+        for (int i = 0; i < 6; i++) {
+            _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
+                _snapshot.playerStates[i].Go.transform.position,
+                visualSmoothCoef);
+            _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
+                _snapshot.playerStates[i].Go.transform.rotation,
                 visualSmoothCoef);
         }
     }
@@ -129,9 +140,10 @@ public class Game : MonoBehaviour {
     // Initialize the players on the plane.
     // @param accepts the prefab of sphere as the game object
     // @returns an array that contains all the rigid body objects
-    private static RBObj[] InitPlayers(GameObject prefab) {
+    private static RBObj[] InitPlayers(GameObject prefab, GameObject prefabRender, out GameObject[] renderTransforms) {
         int n = 6;
         var res = new RBObj[n];
+        renderTransforms = new GameObject[6];
         for (int i = 0; i < n; i++) {
             Vector3 v3 = new Vector3(0.4f * Mathf.Sin(Mathf.PI * (float) i / (float) (n - 1)), 3, 0.4f * Mathf.Cos(Mathf.PI * (float) i / (float) (n - 1)));
             RBObj rBObj = new RBObj {
@@ -147,6 +159,9 @@ public class Game : MonoBehaviour {
             rBObj.Go.GetComponent<RBObjHolder>().rBObj = rBObj;
 
             res[i] = rBObj;
+
+            renderTransforms[i] = Instantiate(prefabRender, new Vector3(v3.x, v3.y, v3.z), Quaternion.identity);
+            renderTransforms[i].SetActive(false);
         }
         return res;
     }
@@ -183,6 +198,7 @@ public class Game : MonoBehaviour {
         foreach (RBObj player in _snapshot.playerStates)
         {
             player.SetActive(true);
+            _renderPlayer[player.Id].SetActive(true);
         }
 
             // Disable "inactive" players

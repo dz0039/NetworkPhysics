@@ -63,8 +63,8 @@ public class Host : MonoBehaviour {
             byte[] currentSnapshotInBytes = msgQueue.Dequeue();
 
             Snapshot recieved = Snapshot.FromBytes(currentSnapshotInBytes);
-            Debug.Log("player len of " + recieved.playerStates.Length);
-            Debug.Log("cube len of " + recieved.cubeStates.Length);
+            // Debug.Log("player len of " + recieved.playerStates.Length);
+            // Debug.Log("cube len of " + recieved.cubeStates.Length);
             // Apply what the client sent us
             Game.Instance.ApplySnapshot(recieved);
         }

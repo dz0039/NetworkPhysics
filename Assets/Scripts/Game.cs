@@ -170,7 +170,6 @@ public class Game : MonoBehaviour {
     public Snapshot Snapshot { get => _snapshot; }
     public void UpdateSnapshot() => _snapshot.UpdateFromRigid();
 
-
     // 1. Set Snapshot property
     // 2. Call apply to update physic engine
     public void ApplySnapshot(Snapshot snapshot)

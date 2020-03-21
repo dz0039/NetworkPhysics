@@ -155,31 +155,77 @@ public class Snapshot {
     }
 
     /*
-        id
-        pos
-        rot
-        lv
-        av
-        priority
+        id : int 8
+        pos : x,y in (-16,16)m (5 b); z in [-1,3]m(2 b); 512(9b) positions per meter
+        rot : 3 three
+        lv : -1024 1024, int6: 64 meters, int6: 64 per meter
+        av : same
+        priority : int32
     */
+    private readonly static Vector3 POS_OFFSET_W = new Vector3(16,1,16);
+    private readonly static Vector3 POS_OFFSET_R = new Vector3(16,3,16);
+    private readonly static Vector3 VEL_OFFSET = new Vector3(16,16,16);
     private static void WriteRBObj(BitStreamWriter writer, RBObj rbobj) {
-        writer.WriteInt16(rbobj.Id);
-        writer.WriteVector3(rbobj.Position);
+        writer.WriteInt8(rbobj.Id);
+        WriteCompressedVector3(writer, rbobj.Position + POS_OFFSET_W,
+             5,9,2,9,5,9);
         writer.WriteQuaternionRot(rbobj.Rotation);
-        writer.WriteVector3(rbobj.LVelocity);
-        writer.WriteVector3(rbobj.AVelocity);
+        WriteCompressedVector3(writer, rbobj.LVelocity + VEL_OFFSET,
+             5,6,5,6,5,6);
+        WriteCompressedVector3(writer, rbobj.AVelocity + VEL_OFFSET,
+             5,6,5,6,5,6);
         writer.WriteInt32(rbobj.Priority);
     }
 
     private static RBObj ReadRBObj(BitStreamReader reader)
     {
         RBObj rbobj = new RBObj();
-        rbobj.Id = reader.ReadInt16();
-        rbobj.Position = reader.ReadVector3();
+        rbobj.Id = reader.ReadInt8();
+        rbobj.Position = ReadCompressedVector3(reader,
+             5,9,2,9,5,9)-POS_OFFSET_R;
         rbobj.Rotation = reader.ReadQuaternionRot();
-        rbobj.LVelocity = reader.ReadVector3();
-        rbobj.AVelocity = reader.ReadVector3();
+        rbobj.LVelocity = ReadCompressedVector3(reader,
+             5,6,5,6,5,6)-VEL_OFFSET;
+        rbobj.AVelocity = ReadCompressedVector3(reader,
+             5,6,5,6,5,6)-VEL_OFFSET;
         rbobj.Priority = reader.ReadInt32();
         return rbobj;
+    }
+
+    private static int IntPow(int a, int b)
+    {
+      int result = 1;
+      for (int i = 0; i < b; i++)
+        result *= a;
+      return result;
+    }
+
+    // assume all positive
+    private static void WriteCompressedVector3(BitStreamWriter writer, Vector3 vec3,int xbits_i, int xbits_f, int ybits_i, int ybits_f, int zbits_i, int zbits_f) {
+        int xi = (int)vec3.x;
+        int xf = (int)((vec3.x-(float)xi) / (1.0f / (float)IntPow(2,xbits_f)));
+        writer.WriteInt(xi,xbits_i);
+        writer.WriteInt(xf,xbits_f);
+        int yi = (int)vec3.y;
+        int yf = (int)((vec3.y-(float)yi) / (1.0f / (float)IntPow(2,ybits_f)));
+        writer.WriteInt(yi,ybits_i);
+        writer.WriteInt(yf,ybits_f);
+        int zi = (int)vec3.z;
+        int zf = (int)((vec3.z-(float)zi) / (1.0f / (float)IntPow(2,zbits_f)));
+        writer.WriteInt(zi,zbits_i);
+        writer.WriteInt(zf,zbits_f);
+    }
+    private static Vector3 ReadCompressedVector3(BitStreamReader reader,int xbits_i, int xbits_f, int ybits_i, int ybits_f, int zbits_i, int zbits_f) {
+        Vector3 res;
+        int xi = reader.ReadInt(xbits_i);
+        int xf = reader.ReadInt(xbits_f);
+        res.x = xi + (xf * (1.0f / (float)IntPow(2,xbits_f)));
+        int yi = reader.ReadInt(ybits_i);
+        int yf = reader.ReadInt(ybits_f);
+        res.y = yi + (yf * (1.0f / (float)IntPow(2,ybits_f)));
+        int zi = reader.ReadInt(zbits_i);
+        int zf = reader.ReadInt(zbits_f);
+        res.z = zi + (zf * (1.0f / (float)IntPow(2,zbits_f)));
+        return res;
     }
 }

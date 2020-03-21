@@ -46,17 +46,11 @@ public class Client : MonoBehaviour {
 
         Game.Instance.UpdateSnapshot();
 
-        // Recieve snapshot from server
-        while (_serverMsg.Count != 0)
-        {
-            byte[] packet = _serverMsg.Dequeue();
-            Snapshot recieved = Snapshot.FromBytes(packet);
-            Game.Instance.ApplySnapshot(recieved);
-        }
+
 
         // Then send modified snapshot back to server
         List<RBObj> priorityPlayers = new List<RBObj>();
-        List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(50);
+        List<RBObj> priorityCubes = new List<RBObj>(); //  Game.Instance.Snapshot.getPriorityCubes(50);
 
         priorityPlayers.Add(Game.Instance.Snapshot.playerStates[Game.Instance.getMainPlayerID()]);
 
@@ -67,5 +61,13 @@ public class Client : MonoBehaviour {
 
         // Now clear the priority value of the cubes we just sent
         Game.Instance.Snapshot.clearPriority(priorityCubes);
+
+        // Recieve snapshot from server
+        while (_serverMsg.Count != 0)
+        {
+            byte[] packet = _serverMsg.Dequeue();
+            Snapshot recieved = Snapshot.FromBytes(packet);
+            Game.Instance.ApplySnapshot(recieved);
+        }
     }
 }

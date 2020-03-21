@@ -22,6 +22,7 @@ public class Host : MonoBehaviour {
     private UDPSocket serverSocket;
 
     private Dictionary<EndPoint, Queue<byte[]>> ep2msg;
+    private int lastClientSize = -1;
     private Snapshot _snapshot;
 
     void Start() {
@@ -73,7 +74,16 @@ public class Host : MonoBehaviour {
         priorityPlayers.AddRange(Game.Instance.Snapshot.playerStates);
         List<RBObj> priorityCubes = Game.Instance.Snapshot.getPriorityCubes(50);
 
+        // Now clear the priority value of the cubes we just sent
+        // Game.Instance.Snapshot.clearPriority(priorityCubes);
+
         Snapshot updatedSnapshot = new Snapshot(priorityPlayers, priorityCubes); // Game.Instance.Snapshot;
+
+        if (lastClientSize != ep2msg.Count) {
+            updatedSnapshot = Game.Instance.Snapshot; // New player joined, send the whole thing
+        }
+        lastClientSize = ep2msg.Count;
+
         byte[] updatedSnapshotInBytes = Snapshot.ToBytes(updatedSnapshot);
         // serverSend synced data in bytes to every endpoint
 
@@ -81,7 +91,5 @@ public class Host : MonoBehaviour {
             serverSocket.ServerSend(updatedSnapshotInBytes, entry.Key);
         }
 
-        // Now clear the priority value of the cubes we just sent
-        Game.Instance.Snapshot.clearPriority(priorityCubes);
     }
 }

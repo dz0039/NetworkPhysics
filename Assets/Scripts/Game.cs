@@ -13,6 +13,7 @@ using UnityEngine.Assertions;
 [DefaultExecutionOrder(0)]
 public class Game : MonoBehaviour {
     public const float visualSmoothCoef = .15f; // Value between 0 and 1, determines how much we smooth the render transform.
+    public const float mainPlayerSmoothCoef = .5f;
 
     public GameObject cubeRenderPrefab;
     public GameObject cubePhysicPrefab;
@@ -95,12 +96,22 @@ public class Game : MonoBehaviour {
         }
         for (int i = 0; i < 6; i++) {
             if (!_snapshot.playerStates[i].IsActive) continue;
-            _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
-                _snapshot.playerStates[i].Go.transform.position,
-                visualSmoothCoef);
-            _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
-                _snapshot.playerStates[i].Go.transform.rotation,
-                visualSmoothCoef);
+            if (i != _mainPlayerId)
+            {
+                _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
+                    _snapshot.playerStates[i].Go.transform.position,
+                    visualSmoothCoef);
+                _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
+                    _snapshot.playerStates[i].Go.transform.rotation,
+                    visualSmoothCoef);
+            } else {
+                _renderPlayer[i].transform.position = Vector3.Lerp(_renderPlayer[i].transform.position,
+                    _snapshot.playerStates[i].Go.transform.position,
+                    mainPlayerSmoothCoef);
+                _renderPlayer[i].transform.rotation = Quaternion.Slerp(_renderPlayer[i].transform.rotation,
+                    _snapshot.playerStates[i].Go.transform.rotation,
+                    mainPlayerSmoothCoef);
+            }
         }
     }
 
@@ -177,7 +188,8 @@ public class Game : MonoBehaviour {
         foreach (RBObj rbObj in snapshot.cubeStates)
         {
             RBObj localVObj = _snapshot.cubeStates[rbObj.Id];
-            if (rbObj.Priority > localVObj.Priority) { 
+            if (!isServer)
+            {
                 // Just set the position and orientation directly
                 localVObj.ApplyRB(
                     rbObj.Position,
@@ -185,17 +197,26 @@ public class Game : MonoBehaviour {
                     rbObj.LVelocity,
                     rbObj.AVelocity
                 );
-                if (isServer)
+                rbObj.Priority = 0; // localVObj.Priority;
+                // rbObj.Owner = localVObj.Owner;
+            }
+            else {
+                if (rbObj.Priority > localVObj.Priority)
                 {
-                    rbObj.Priority = localVObj.Priority;
-                }
-                else {
-                    rbObj.Priority = 0;
+                    // Just set the position and orientation directly
+                    localVObj.ApplyRB(
+                        rbObj.Position,
+                        rbObj.Rotation,
+                        rbObj.LVelocity,
+                        rbObj.AVelocity
+                    );
+                    rbObj.Priority = rbObj.Priority; // localVObj.Priority;
+                    // rbObj.Owner = localVObj.Owner;
                 }
             }
         }
 
-        foreach (RBObj player in _snapshot.playerStates)
+        foreach (RBObj player in snapshot.playerStates)
         {
             player.SetActive(true);
             _renderPlayer[player.Id].SetActive(true);
@@ -203,6 +224,7 @@ public class Game : MonoBehaviour {
 
         foreach (RBObj player in snapshot.playerStates)
         {
+            
             if (player.Id == _snapshot.playerStates[_mainPlayerId].Id) {
                 // Do not let anyone else control this player
                 continue;
@@ -222,5 +244,9 @@ public class Game : MonoBehaviour {
 
     public int getMainPlayerID() {
         return _mainPlayerId;
+    }
+
+    public bool isGameServer() {
+        return isServer;
     }
 }
